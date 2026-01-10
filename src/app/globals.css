@@ -1,26 +1,212 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: 'Syne', system-ui, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* === BRAND PALETTE (Raw Values) === */
+  --gravity-cyan: #4FD1FF;
+  --gravity-cyan-dark: #38BDF8;
+  --gravity-blue: #1E3A8A;
+  --gravity-indigo: #6366F1;
+  --gravity-violet: #818CF8;
+
+  /* LAUNCH PAD DESIGN TOKENS (Light Mode - "The Studio") */
+  --radius: 0.5rem;
+
+  /* Semantic Mapping (Light Mode) */
+  --background: hsl(210 33% 98%);
+  --foreground: hsl(240 6% 10%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(240 6% 10%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(240 6% 10%);
+
+  --primary: hsl(195 100% 66%);
+  --primary-foreground: hsl(240 6% 10%);
+
+  --secondary: hsl(210 40% 96.1%);
+  --secondary-foreground: hsl(222.2 47.4% 11.2%);
+
+  --muted: hsl(210 40% 96.1%);
+  --muted-foreground: hsl(240 4% 46%);
+
+  --accent: hsl(210 40% 96.1%);
+  --accent-foreground: hsl(222.2 47.4% 11.2%);
+
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(210 40% 98%);
+
+  --border: hsl(214 32% 91%);
+  --input: hsl(214 32% 91%);
+  --ring: hsl(195 100% 66%);
+
+  /* Chart Colors */
+  --chart-1: hsl(195 100% 66%);
+  --chart-2: hsl(173 58% 39%);
+  --chart-3: hsl(197 37% 24%);
+  --chart-4: hsl(43 74% 66%);
+  --chart-5: hsl(27 87% 67%);
+
+  /* Sidebar Variables (Light Mode) */
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(195 100% 66%);
+}
+
+.dark {
+  /* === BRAND PALETTE (Raw Values - same in dark mode) === */
+  --gravity-cyan: #4FD1FF;
+  --gravity-cyan-dark: #38BDF8;
+  --gravity-blue: #1E3A8A;
+  --gravity-indigo: #6366F1;
+  --gravity-violet: #818CF8;
+
+  /* LAUNCH PAD DESIGN TOKENS (Dark Mode - "The Void") */
+
+  /* Semantic Mapping (Dark Mode) */
+  --background: hsl(240 50% 2%);
+  --foreground: hsl(0 0% 100%);
+
+  --card: hsl(240 29% 5%);
+  --card-foreground: hsl(0 0% 100%);
+
+  --popover: hsl(240 29% 5%);
+  --popover-foreground: hsl(0 0% 100%);
+
+  --primary: hsl(195 100% 66%);
+  --primary-foreground: hsl(240 6% 10%);
+
+  --secondary: hsl(235 19% 16%);
+  --secondary-foreground: hsl(210 40% 98%);
+
+  --muted: hsl(235 19% 16%);
+  --muted-foreground: hsl(240 4% 46%);
+
+  --accent: hsl(239 84% 67%);
+  --accent-foreground: hsl(210 40% 98%);
+
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(210 40% 98%);
+
+  --border: hsl(240 26% 14%);
+  --input: hsl(240 26% 14%);
+  --ring: hsl(195 100% 66%);
+
+  /* Chart Colors (Dark Mode) */
+  --chart-1: hsl(195 100% 66%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+
+  /* Sidebar Variables (Dark Mode) */
+  --sidebar: hsl(240 50% 2%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(195 100% 66%);
+  --sidebar-primary-foreground: hsl(240 6% 10%);
+  --sidebar-accent: hsl(235 19% 13%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 26% 14%);
+  --sidebar-ring: hsl(195 100% 66%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Gravity floating card effect */
+.card-floating {
+  background: rgba(10, 10, 18, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(79, 209, 255, 0.25);
+  border-radius: 14px;
+  box-shadow:
+    0 0 40px -8px rgba(79, 209, 255, 0.3),
+    0 25px 50px -15px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-floating:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 60px -5px rgba(79, 209, 255, 0.4),
+    0 30px 60px -15px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Gravity cyan glow accent */
+.glow-accent {
+  box-shadow: 0 0 20px -5px rgba(79, 209, 255, 0.5);
+}
+
+/* Status badge pulse */
+.status-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
