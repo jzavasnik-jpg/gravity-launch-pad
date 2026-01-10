@@ -1,21 +1,27 @@
-import { useState } from "react";
+'use client';
+
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Mail, Lock, User, AlertCircle, Chrome } from "lucide-react";
-import { signUpWithEmail, signInWithEmail, getUserRecord, createUserRecord } from "@/lib/auth-service";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Mail, Lock, User, AlertCircle, Chrome } from 'lucide-react';
+import {
+  signUpWithEmail,
+  signInWithEmail,
+  signInWithGoogle,
+  getUserRecord,
+  createUserRecord,
+} from '@/lib/auth-service';
+import { toast } from 'sonner';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -23,19 +29,19 @@ interface AuthModalProps {
 }
 
 export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signup");
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signup');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   // Sign up form
-  const [signUpEmail, setSignUpEmail] = useState("");
-  const [signUpPassword, setSignUpPassword] = useState("");
-  const [signUpName, setSignUpName] = useState("");
-  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpName, setSignUpName] = useState('');
+  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
 
   // Sign in form
-  const [signInEmail, setSignInEmail] = useState("");
-  const [signInPassword, setSignInPassword] = useState("");
+  const [signInEmail, setSignInEmail] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,26 +50,26 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     // Validation
     if (!signUpName.trim()) {
-      setError("Please enter your name");
+      setError('Please enter your name');
       return;
     }
 
     if (!validateEmail(signUpEmail)) {
-      setError("Please enter a valid email address");
+      setError('Please enter a valid email address');
       return;
     }
 
     if (signUpPassword.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError('Password must be at least 6 characters');
       return;
     }
 
     if (signUpPassword !== signUpConfirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
@@ -83,12 +89,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       }
 
       if (user) {
-        toast.success("Account created! Please check your email to verify your account.");
+        toast.success('Account created! Please check your email to verify your account.');
         if (onClose) onClose();
       }
     } catch (err) {
-      console.error("Sign up error:", err);
-      setError("An unexpected error occurred. Please try again.");
+      console.error('Sign up error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -96,16 +102,16 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     // Validation
     if (!validateEmail(signInEmail)) {
-      setError("Please enter a valid email address");
+      setError('Please enter a valid email address');
       return;
     }
 
     if (!signInPassword) {
-      setError("Please enter your password");
+      setError('Please enter your password');
       return;
     }
 
@@ -124,38 +130,33 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       }
 
       if (user) {
-        toast.success("Welcome back!");
+        toast.success('Welcome back!');
         if (onClose) onClose();
       }
     } catch (err) {
-      console.error("Sign in error:", err);
-      setError("An unexpected error occurred. Please try again.");
+      console.error('Sign in error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    setError("");
-    // Do not set loading here to preserve user gesture for popup
+    setError('');
 
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      const { error: googleError } = await signInWithGoogle();
 
-      if (user) {
-        // Check/create user record
-        const existingRecord = await getUserRecord(user.uid);
-        if (!existingRecord && user.email) {
-          await createUserRecord(user.uid, user.email, user.displayName || 'User');
-        }
-
-        if (onClose) onClose();
+      if (googleError) {
+        setError(googleError.message);
+        return;
       }
+
+      // Google OAuth redirects, so the modal will close automatically
+      // when the user returns and the auth state changes
     } catch (err: any) {
-      console.error("Google sign in error:", err);
-      setError(err.message || "Failed to sign in with Google. Please try again.");
+      console.error('Google sign in error:', err);
+      setError(err.message || 'Failed to sign in with Google. Please try again.');
     }
   };
 
@@ -163,13 +164,13 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] glass-panel">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Welcome to Gravity Insight</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Welcome to Launch Pad</DialogTitle>
           <DialogDescription>
             Sign in to access your account or create a new one to get started
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "signin" | "signup")}>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'signin' | 'signup')}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
             <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -256,7 +257,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     Creating account...
                   </>
                 ) : (
-                  "Create Account"
+                  'Create Account'
                 )}
               </Button>
 
@@ -335,7 +336,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     Signing in...
                   </>
                 ) : (
-                  "Sign In"
+                  'Sign In'
                 )}
               </Button>
 

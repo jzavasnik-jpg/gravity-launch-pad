@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     LayoutDashboard,
     PenTool,
@@ -26,8 +29,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useApp } from '@/context/AppContext';
-import { auth } from '@/lib/firebase';
-import { signOut } from 'firebase/auth';
+import { signOut } from '@/lib/auth-service';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -44,15 +46,14 @@ interface AppLayoutProps {
     children: React.ReactNode;
 }
 
-export function AppLayout({ children }: AppLayoutProps) {
-    const location = useLocation();
-    const navigate = useNavigate();
+export default function AppLayout({ children }: AppLayoutProps) {
+    const pathname = usePathname();
+    const router = useRouter();
     const { user } = useAuth();
     const { appState } = useApp();
     const [collapsed, setCollapsed] = React.useState(false);
 
-    // Navigation items in the user-requested order:
-    // Home, ICP, Avatars, Asset Library, Market Radar, Strategy, Content, Director, Thumbnails, Beta (conditional), Export, Landing Page, Mission Control
+    // Navigation items
     const navItems = [
         { path: '/', label: 'Home', icon: Home },
         { path: '/icp/review', label: 'ICP', icon: FileText },
@@ -63,15 +64,13 @@ export function AppLayout({ children }: AppLayoutProps) {
         { path: '/veritas/content-composer', label: 'Content', icon: PenTool },
         { path: '/veritas/directors-cut', label: 'Director', icon: Film },
         { path: '/veritas/thumbnail-composer', label: 'Thumbnails', icon: ImageIcon },
-        { path: '/beta-content', label: 'Beta', icon: FlaskConical, conditional: true },
         { path: '/veritas/export-studio', label: 'Export', icon: Download },
         { path: '/landing-pad', label: 'Landing Page', icon: Rocket },
-        { path: '/mission-control', label: 'Mission Control', icon: Activity, comingSoon: true },
     ];
 
     const handleLogout = async () => {
-        await signOut(auth);
-        navigate('/');
+        await signOut();
+        router.push('/');
     };
 
     return (
@@ -83,19 +82,49 @@ export function AppLayout({ children }: AppLayoutProps) {
                         variant="ghost"
                         size="icon"
                         onClick={() => setCollapsed(!collapsed)}
-                        className="text-zinc-400 hover:text-white hover:bg-white/5 mr-2"
+                        className="text-muted-foreground hover:text-foreground hover:bg-muted mr-2"
                     >
                         <LayoutTemplate className="h-5 w-5" />
                     </Button>
                     <div className="flex items-center gap-2">
-                        <span className="font-display text-xl font-bold tracking-tight text-foreground">G</span>
-                        <span className="font-display text-lg tracking-tight text-foreground">Gravity Product Launcher</span>
+                        <span className="text-xl font-bold tracking-tight text-primary" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>G</span>
+                        <span className="text-lg tracking-tight text-foreground" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>Launch Pad</span>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                     {appState.headerActions}
                     <ThemeToggle />
+
+                    {/* User Menu */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="flex items-center gap-2">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={user?.photoURL || undefined} />
+                                    <AvatarFallback className="bg-primary/10 text-primary">
+                                        {user?.email?.charAt(0).toUpperCase() || 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel>
+                                {user?.email || 'User'}
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => router.push('/settings')}>
+                                <Settings className="mr-2 h-4 w-4" />
+                                Settings
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Sign Out
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </header>
 
@@ -109,126 +138,68 @@ export function AppLayout({ children }: AppLayoutProps) {
                 >
                     <nav className="flex-1 flex flex-col gap-2 w-full px-3 overflow-y-auto">
                         {navItems.map((item) => {
-                            const isActive = location.pathname === item.path;
-                            const itemWithFlags = item as typeof item & { conditional?: boolean; comingSoon?: boolean };
-
-                            // Hide conditional items (Beta) if no content has been generated yet
-                            // For now, we show it but could add logic to hide based on appState
-                            if (itemWithFlags.conditional) {
-                                // Beta is conditional - could check if first content is generated
-                                // For now, always show it
-                            }
-
-                            // Coming soon items are disabled
-                            if (itemWithFlags.comingSoon) {
-                                return (
-                                    <div
-                                        key={item.path}
-                                        className={cn(
-                                            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative cursor-not-allowed opacity-50",
-                                            collapsed && "justify-center px-0"
-                                        )}
-                                    >
-                                        <item.icon className="w-5 h-5 flex-shrink-0 text-muted-foreground" />
-                                        {!collapsed && (
-                                            <span className="text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis flex items-center gap-2">
-                                                {item.label}
-                                                <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-muted rounded text-muted-foreground">Soon</span>
-                                            </span>
-                                        )}
-                                        {collapsed && (
-                                            <div className="absolute left-14 bg-zinc-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                                                {item.label} (Coming Soon)
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            }
+                            const isActive = pathname === item.path;
 
                             return (
                                 <Link
                                     key={item.path}
-                                    to={item.path}
+                                    href={item.path}
                                     className={cn(
                                         "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
+                                        collapsed && "justify-center px-0",
                                         isActive
-                                            ? "bg-primary/10 text-primary"
-                                            : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                                        collapsed && "justify-center px-0"
+                                            ? "bg-primary/10 text-primary border border-primary/20"
+                                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
                                     )}
                                 >
-                                    <item.icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-
+                                    <item.icon className={cn(
+                                        "w-5 h-5 flex-shrink-0",
+                                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                                    )} />
                                     {!collapsed && (
                                         <span className="text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
                                             {item.label}
                                         </span>
                                     )}
-
-                                    {/* Tooltip for collapsed state */}
                                     {collapsed && (
-                                        <div className="absolute left-14 bg-zinc-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                                        <div className="absolute left-14 bg-popover text-popover-foreground text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border shadow-lg">
                                             {item.label}
                                         </div>
                                     )}
                                 </Link>
                             );
                         })}
-
-                        <div className="h-px w-full bg-white/10 my-2" />
-
-                        <Link
-                            to="/settings"
-                            className={cn(
-                                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-white/5 transition-all",
-                                collapsed && "justify-center px-0"
-                            )}
-                        >
-                            <Settings className="w-5 h-5 flex-shrink-0" />
-                            {!collapsed && <span className="text-sm font-medium">Settings</span>}
-                        </Link>
                     </nav>
 
-                    <div className={cn("mt-auto px-3", collapsed && "flex justify-center")}>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <div className={cn("flex items-center gap-3 p-2 rounded-lg border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors", collapsed && "border-none bg-transparent p-0")}>
-                                    <Avatar className="w-8 h-8 border border-white/10">
-                                        <AvatarImage src={user?.photoURL || appState.avatarData?.photo_url} />
-                                        <AvatarFallback className="bg-zinc-800 text-zinc-400 text-xs">
-                                            {appState.userName?.charAt(0) || "U"}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    {!collapsed && (
-                                        <div className="flex flex-col overflow-hidden text-left">
-                                            <span className="text-xs font-medium text-white truncate">{appState.userName || "User"}</span>
-                                            <span className="text-[10px] text-zinc-500 truncate">{appState.userEmail || "user@example.com"}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start" side="right" className="w-56 bg-black border border-zinc-800 text-white shadow-xl ml-2">
-                                <DropdownMenuLabel className="text-zinc-400">My Account</DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-zinc-800" />
-                                <DropdownMenuItem onClick={() => navigate('/profile')} className="focus:bg-zinc-900 focus:text-white cursor-pointer text-zinc-200">
-                                    <User className="mr-2 h-4 w-4" /> Profile
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => navigate('/settings')} className="focus:bg-zinc-900 focus:text-white cursor-pointer text-zinc-200">
-                                    <Settings className="mr-2 h-4 w-4" /> Settings
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-zinc-800" />
-                                <DropdownMenuItem onClick={handleLogout} className="focus:bg-red-900/20 focus:text-red-400 text-red-400 cursor-pointer">
-                                    <LogOut className="mr-2 h-4 w-4" /> Log out
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                    {/* Sessions Link at Bottom */}
+                    <div className="px-3 mt-auto">
+                        <Link
+                            href="/sessions"
+                            className={cn(
+                                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
+                                collapsed && "justify-center px-0",
+                                pathname === '/sessions'
+                                    ? "bg-primary/10 text-primary border border-primary/20"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                            )}
+                        >
+                            <FolderOpen className={cn(
+                                "w-5 h-5 flex-shrink-0",
+                                pathname === '/sessions' ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                            )} />
+                            {!collapsed && (
+                                <span className="text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                                    Sessions
+                                </span>
+                            )}
+                        </Link>
                     </div>
                 </aside>
 
                 {/* Main Content */}
                 <main
                     className={cn(
-                        "flex-1 min-h-[calc(100vh-64px)] bg-background relative transition-all duration-300 ease-in-out",
+                        "flex-1 transition-all duration-300 ease-in-out",
                         collapsed ? "ml-16" : "ml-64"
                     )}
                 >
@@ -239,3 +210,5 @@ export function AppLayout({ children }: AppLayoutProps) {
     );
 }
 
+// Named export for compatibility
+export { AppLayout };

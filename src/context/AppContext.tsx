@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { createICPSession, updateICPSession, getLatestICPSession } from "@/lib/database-service";
 import { vectorizeSession } from "@/lib/rag-service";

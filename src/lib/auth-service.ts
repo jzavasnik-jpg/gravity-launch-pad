@@ -1,32 +1,24 @@
-import { auth } from "@/lib/firebase";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut as firebaseSignOut,
-  sendPasswordResetEmail,
-  updatePassword as firebaseUpdatePassword,
-  sendEmailVerification,
-  User
-} from "firebase/auth";
-// User record operations now go through Supabase (database-service)
+'use client';
+
+import { supabase, User } from '@/lib/supabase';
 import {
   createUserRecord as dbCreateUserRecord,
   getUserRecord as dbGetUserRecord,
   getUserRecordByEmail as dbGetUserRecordByEmail,
   updateUserRecord as dbUpdateUserRecord,
   UserRecord
-} from "@/lib/database-service";
+} from '@/lib/database-service';
 
-const IS_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+const IS_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 
-const MOCK_USER: any = {
-  uid: 'mock-user-id',
+const MOCK_USER: User = {
+  id: 'mock-user-id',
   email: 'mock@example.com',
-  displayName: 'Mock User',
-  emailVerified: true,
-};
+  app_metadata: {},
+  user_metadata: { name: 'Mock User' },
+  aud: 'authenticated',
+  created_at: new Date().toISOString(),
+} as User;
 
 export interface AuthUser {
   id: string;
@@ -36,7 +28,7 @@ export interface AuthUser {
 }
 
 // Re-export UserRecord from database-service for consumers
-export type { UserRecord } from "@/lib/database-service";
+export type { UserRecord } from '@/lib/database-service';
 
 export interface AuthError {
   message: string;
@@ -56,17 +48,31 @@ export async function signUpWithEmail(
       return { user: MOCK_USER, error: null };
     }
 
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
-    // Create user record in Firestore
+    if (error) {
+      return { user: null, error: { message: error.message } };
+    }
+
+    const user = data.user;
+
+    // Create user record in Supabase users table
     if (user) {
-      await createUserRecord(user.uid, email, name);
+      await createUserRecord(user.id, email, name);
     }
 
     return { user, error: null };
   } catch (error: any) {
-    console.error("Sign up error:", error);
+    console.error('Sign up error:', error);
     return { user: null, error: { message: error.message } };
   }
 }
@@ -84,10 +90,18 @@ export async function signInWithEmail(
       return { user: MOCK_USER, error: null };
     }
 
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return { user: userCredential.user, error: null };
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { user: null, error: { message: error.message } };
+    }
+
+    return { user: data.user, error: null };
   } catch (error: any) {
-    console.error("Sign in error:", error);
+    console.error('Sign in error:', error);
     return { user: null, error: { message: error.message } };
   }
 }
@@ -95,133 +109,25 @@ export async function signInWithEmail(
 /**
  * Sign in with Google OAuth
  */
-// Store the OAuth credential for API access
-let cachedGoogleCredential: { accessToken: string; expiresAt: number } | null = null;
-
-// Track if we're currently refreshing the token
-let isRefreshingToken = false;
-let tokenRefreshPromise: Promise<string | null> | null = null;
-
 export async function signInWithGoogle(): Promise<{ error: AuthError | null }> {
   try {
-    const provider = new GoogleAuthProvider();
-    // Add scopes for Google Slides integration
-    provider.addScope('https://www.googleapis.com/auth/presentations');
-    provider.addScope('https://www.googleapis.com/auth/drive.file');
-    // Add YouTube scope for Market Radar
-    provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: 'email profile',
+      },
+    });
 
-    // Store the Google OAuth access token for API calls
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    if (credential?.accessToken) {
-      cachedGoogleCredential = {
-        accessToken: credential.accessToken,
-        expiresAt: Date.now() + 3600 * 1000, // Token typically valid for 1 hour
-      };
-      console.log('[Auth] Google OAuth access token cached for YouTube API');
-    }
-
-    // Check if user record exists, if not create it
-    if (user) {
-      const existingRecord = await getUserRecord(user.uid);
-      if (!existingRecord && user.email) {
-        await createUserRecord(user.uid, user.email, user.displayName || 'User');
-      }
+    if (error) {
+      return { error: { message: error.message } };
     }
 
     return { error: null };
   } catch (error: any) {
-    console.error("Google sign in error:", error);
+    console.error('Google sign in error:', error);
     return { error: { message: error.message } };
   }
-}
-
-/**
- * Silently refresh Google OAuth token using reauthentication
- * This tries to get a fresh token without user interaction when possible
- */
-export async function refreshGoogleOAuthToken(): Promise<string | null> {
-  // If already refreshing, wait for that to complete
-  if (isRefreshingToken && tokenRefreshPromise) {
-    return tokenRefreshPromise;
-  }
-
-  isRefreshingToken = true;
-
-  tokenRefreshPromise = (async () => {
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        console.warn('[Auth] No current user for token refresh');
-        return null;
-      }
-
-      // Check if user signed in with Google
-      const googleProvider = user.providerData.find(p => p.providerId === 'google.com');
-      if (!googleProvider) {
-        console.warn('[Auth] User did not sign in with Google');
-        return null;
-      }
-
-      // Try to silently reauthenticate with Google
-      // This will use the existing session if available
-      const provider = new GoogleAuthProvider();
-      provider.addScope('https://www.googleapis.com/auth/presentations');
-      provider.addScope('https://www.googleapis.com/auth/drive.file');
-      provider.addScope('https://www.googleapis.com/auth/youtube.readonly');
-
-      // Use signInWithPopup - this will show a popup but Google may auto-select the account
-      const result = await signInWithPopup(auth, provider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-
-      if (credential?.accessToken) {
-        cachedGoogleCredential = {
-          accessToken: credential.accessToken,
-          expiresAt: Date.now() + 3600 * 1000,
-        };
-        console.log('[Auth] Google OAuth token refreshed successfully');
-        return credential.accessToken;
-      }
-
-      return null;
-    } catch (error: any) {
-      console.error('[Auth] Token refresh failed:', error.message);
-      return null;
-    } finally {
-      isRefreshingToken = false;
-      tokenRefreshPromise = null;
-    }
-  })();
-
-  return tokenRefreshPromise;
-}
-
-/**
- * Get the Google OAuth access token for API calls (YouTube, etc.)
- * Returns null if not available - caller should handle gracefully
- */
-export function getGoogleAccessToken(): string | null {
-  if (!cachedGoogleCredential) {
-    // Don't warn on every call - this is expected on fresh page loads
-    return null;
-  }
-
-  // Check if token is expired
-  if (Date.now() > cachedGoogleCredential.expiresAt) {
-    cachedGoogleCredential = null;
-    return null;
-  }
-
-  return cachedGoogleCredential.accessToken;
-}
-
-/**
- * Check if Google OAuth token is available
- */
-export function hasGoogleOAuthToken(): boolean {
-  return getGoogleAccessToken() !== null;
 }
 
 /**
@@ -233,10 +139,14 @@ export async function signOut(): Promise<{ error: AuthError | null }> {
       console.log('Mock signOut called');
       return { error: null };
     }
-    await firebaseSignOut(auth);
+
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      return { error: { message: error.message } };
+    }
     return { error: null };
   } catch (error: any) {
-    console.error("Sign out error:", error);
+    console.error('Sign out error:', error);
     return { error: { message: error.message } };
   }
 }
@@ -249,9 +159,11 @@ export async function getCurrentUser(): Promise<User | null> {
     if (IS_MOCK) {
       return MOCK_USER;
     }
-    return auth.currentUser;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
   } catch (error) {
-    console.error("Get current user error:", error);
+    console.error('Get current user error:', error);
     return null;
   }
 }
@@ -267,16 +179,16 @@ export async function getSession() {
         user: MOCK_USER
       };
     }
-    const user = auth.currentUser;
-    if (!user) return null;
 
-    const token = await user.getIdToken();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
+
     return {
-      access_token: token,
-      user: user
+      access_token: session.access_token,
+      user: session.user
     };
   } catch (error) {
-    console.error("Get session error:", error);
+    console.error('Get session error:', error);
     return null;
   }
 }
@@ -286,10 +198,16 @@ export async function getSession() {
  */
 export async function resetPassword(email: string): Promise<{ error: AuthError | null }> {
   try {
-    await sendPasswordResetEmail(auth, email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    if (error) {
+      return { error: { message: error.message } };
+    }
     return { error: null };
   } catch (error: any) {
-    console.error("Reset password error:", error);
+    console.error('Reset password error:', error);
     return { error: { message: error.message } };
   }
 }
@@ -299,14 +217,16 @@ export async function resetPassword(email: string): Promise<{ error: AuthError |
  */
 export async function updatePassword(newPassword: string): Promise<{ error: AuthError | null }> {
   try {
-    const user = auth.currentUser;
-    if (user) {
-      await firebaseUpdatePassword(user, newPassword);
-      return { error: null };
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      return { error: { message: error.message } };
     }
-    return { error: { message: "No user logged in" } };
+    return { error: null };
   } catch (error: any) {
-    console.error("Update password error:", error);
+    console.error('Update password error:', error);
     return { error: { message: error.message } };
   }
 }
@@ -316,21 +236,23 @@ export async function updatePassword(newPassword: string): Promise<{ error: Auth
  */
 export async function resendVerificationEmail(email: string): Promise<{ error: AuthError | null }> {
   try {
-    const user = auth.currentUser;
-    if (user) {
-      await sendEmailVerification(user);
-      return { error: null };
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    });
+
+    if (error) {
+      return { error: { message: error.message } };
     }
-    return { error: { message: "No user logged in" } };
+    return { error: null };
   } catch (error: any) {
-    console.error("Resend verification error:", error);
+    console.error('Resend verification error:', error);
     return { error: { message: error.message } };
   }
 }
 
 /**
  * Create user record in Supabase users table
- * Wraps the database-service function for backward compatibility
  */
 export async function createUserRecord(
   authUserId: string,
@@ -342,7 +264,6 @@ export async function createUserRecord(
 
 /**
  * Get user record from Supabase users table
- * Wraps the database-service function for backward compatibility
  */
 export async function getUserRecord(userId: string): Promise<UserRecord | null> {
   if (IS_MOCK) {
@@ -362,7 +283,6 @@ export async function getUserRecord(userId: string): Promise<UserRecord | null> 
 
 /**
  * Get user record by email from Supabase
- * Wraps the database-service function for backward compatibility
  */
 export async function getUserRecordByEmail(email: string): Promise<UserRecord | null> {
   return dbGetUserRecordByEmail(email);
@@ -370,7 +290,6 @@ export async function getUserRecordByEmail(email: string): Promise<UserRecord | 
 
 /**
  * Update user record in Supabase
- * Wraps the database-service function for backward compatibility
  */
 export async function updateUserRecord(
   userId: string,
@@ -389,26 +308,23 @@ export async function updateUserProfile(
   try {
     const updates: Partial<UserRecord> = {};
     if (data.name) updates.name = data.name;
-    // Note: We might want to store photo_url in UserRecord if we add it to the interface
-    // For now, let's assume we might add it or just rely on Auth profile
 
     // Update Supabase user record
     await updateUserRecord(userId, updates);
 
-    // Update Firebase Auth Profile
-    const user = auth.currentUser;
-    if (user) {
-      const profileUpdates: { displayName?: string; photoURL?: string } = {};
-      if (data.name) profileUpdates.displayName = data.name;
-      if (data.photo_url) profileUpdates.photoURL = data.photo_url;
-
-      const { updateProfile } = await import("firebase/auth");
-      await updateProfile(user, profileUpdates);
+    // Update Supabase Auth user metadata
+    if (data.name || data.photo_url) {
+      await supabase.auth.updateUser({
+        data: {
+          name: data.name,
+          avatar_url: data.photo_url,
+        },
+      });
     }
 
     return true;
   } catch (error) {
-    console.error("Error updating user profile:", error);
+    console.error('Error updating user profile:', error);
     return false;
   }
 }
@@ -420,43 +336,20 @@ export async function checkProAccess(email: string): Promise<boolean> {
   try {
     if (IS_MOCK) return true;
 
-    // Fallback: check special email directly
+    // Founder always has PRO access
     if (email === 'jzavasnik@gmail.com') return true;
 
     // Get user record from Supabase to check plan_type
-    const currentUser = auth.currentUser;
-    if (currentUser && currentUser.email === email) {
-      const record = await getUserRecord(currentUser.uid);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && user.email === email) {
+      const record = await getUserRecord(user.id);
       return record?.plan_type === 'pro';
     }
 
     return false;
   } catch (error) {
-    console.error("Error checking PRO access:", error);
+    console.error('Error checking PRO access:', error);
     return email === 'jzavasnik@gmail.com';
-  }
-}
-
-/**
- * Upload user photo to Firebase Storage
- */
-export async function uploadUserPhoto(userId: string, file: File): Promise<string | null> {
-  try {
-    const { storage } = await import("@/lib/firebase");
-    const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
-
-    // Create a reference to 'user_photos/{userId}/{filename}'
-    const fileRef = ref(storage, `user_photos/${userId}/${file.name}`);
-
-    // Upload the file
-    await uploadBytes(fileRef, file);
-
-    // Get the download URL
-    const downloadURL = await getDownloadURL(fileRef);
-    return downloadURL;
-  } catch (error) {
-    console.error("Error uploading user photo:", error);
-    return null;
   }
 }
 
@@ -466,3 +359,5 @@ export async function uploadUserPhoto(userId: string, file: File): Promise<strin
 export async function markEmailVerified(userId: string): Promise<boolean> {
   return updateUserRecord(userId, { is_email_verified: true });
 }
+
+// Note: Photo upload now handled by storage-service.ts with Backblaze B2

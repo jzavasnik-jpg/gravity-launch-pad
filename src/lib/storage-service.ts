@@ -2,6 +2,8 @@
 // Handles file uploads to Backblaze B2 via secure backend endpoints
 // SECURITY: All B2 operations go through Vercel API routes - credentials never exposed to frontend
 
+'use client';
+
 import { supabase } from './supabase';
 
 export interface UploadProgress {
@@ -18,8 +20,8 @@ export interface UploadResult {
   size?: number;
 }
 
-// API base URL - uses relative paths in production (Vercel), absolute in dev
-const API_BASE = import.meta.env.DEV ? 'http://localhost:3000' : '';
+// API base URL - uses relative paths for API routes in Next.js
+const API_BASE = '';
 
 /**
  * Get the current user's auth token for API requests
