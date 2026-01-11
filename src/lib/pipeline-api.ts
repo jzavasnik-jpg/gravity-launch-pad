@@ -20,8 +20,8 @@ import type {
 } from './pipeline-types';
 import type { ViralConcept } from './content-api';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /**
  * Phase 1: Validate - Market validation with multi-agent research
@@ -512,7 +512,7 @@ export async function getOrCreateAvatarSeed(
   sessionId: string,
   userUuid: string
 ): Promise<AvatarSeed | null> {
-  const isDevMode = import.meta.env.VITE_USE_MOCK_DATA === 'true' || import.meta.env.MODE === 'test';
+  const isDevMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || process.env.NODE_ENV === 'test';
 
   console.log('[getOrCreateAvatarSeed] Starting avatar seed retrieval', {
     sessionId,

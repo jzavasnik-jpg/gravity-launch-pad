@@ -15,12 +15,7 @@
 
 import { Scene } from '@/store/projectStore';
 
-// Environment configuration
-const KLING_API_KEY = import.meta.env.VITE_KLING_API_KEY || '';
-const KLING_API_BASE = import.meta.env.VITE_KLING_API_BASE || 'https://api.klingai.com/v1';
-
-// Nano Banana Proxy for Gemini image generation
-const NANO_BANANA_PROXY = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+// Kling API calls are proxied through /api/video/kling
 
 export interface KlingVideoRequest {
   image_url: string;
@@ -82,40 +77,46 @@ export function generateImagePrompt(scene: Scene, visualStyle: string): string {
 }
 
 /**
- * Generate an image using AI (Gemini via Nano Banana Proxy or Flux)
+ * Generate an image using AI (Gemini via proxy)
  * Returns a URL to the generated image
  */
 export async function generateImage(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
   try {
-    const response = await fetch(`${NANO_BANANA_PROXY}/api/generate-image`, {
+    const response = await fetch('/api/ai/gemini', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         prompt: request.prompt,
-        aspect_ratio: request.aspect_ratio,
-        style: request.style
+        generateImage: true,
       })
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Image generation failed: ${error}`);
+      const error = await response.json();
+      throw new Error(`Image generation failed: ${error.error}`);
     }
 
     const data = await response.json();
-    return {
-      url: data.url || data.image_url,
-      revised_prompt: data.revised_prompt
-    };
+
+    // Extract image from Gemini response
+    const candidates = data.candidates;
+    if (candidates?.[0]?.content?.parts) {
+      const imagePart = candidates[0].content.parts.find((p: any) => p.inlineData);
+      if (imagePart?.inlineData) {
+        const mimeType = imagePart.inlineData.mimeType || 'image/png';
+        const base64Data = imagePart.inlineData.data;
+        return {
+          url: `data:${mimeType};base64,${base64Data}`,
+          revised_prompt: request.prompt
+        };
+      }
+    }
+
+    throw new Error('No image data in response');
   } catch (error) {
     console.error('Image generation error:', error);
-
-    // Fallback to placeholder for development
-    if (!NANO_BANANA_PROXY.includes('localhost')) {
-      throw error;
-    }
 
     // Development fallback
     console.warn('Using placeholder image for development');
@@ -127,22 +128,15 @@ export async function generateImage(request: ImageGenerationRequest): Promise<Im
 }
 
 /**
- * Generate a video from an image using Kling AI
+ * Generate a video from an image using Kling AI via proxy
  * This is an async operation - returns task ID for polling
  */
 export async function initiateVideoGeneration(request: KlingVideoRequest): Promise<string> {
-  if (!KLING_API_KEY) {
-    console.warn('Kling API key not configured, using placeholder');
-    // Return mock task ID for development
-    return `mock_task_${Date.now()}`;
-  }
-
   try {
-    const response = await fetch(`${KLING_API_BASE}/video/generate`, {
+    const response = await fetch('/api/video/kling', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${KLING_API_KEY}`
       },
       body: JSON.stringify({
         image_url: request.image_url,
@@ -155,7 +149,12 @@ export async function initiateVideoGeneration(request: KlingVideoRequest): Promi
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to initiate video generation');
+      // Return mock task ID for development if API not configured
+      if (error.error?.includes('not configured')) {
+        console.warn('Kling API key not configured, using placeholder');
+        return `mock_task_${Date.now()}`;
+      }
+      throw new Error(error.error || 'Failed to initiate video generation');
     }
 
     const data = await response.json();
@@ -185,21 +184,12 @@ export async function checkVideoStatus(taskId: string): Promise<KlingVideoRespon
     };
   }
 
-  if (!KLING_API_KEY) {
-    throw new Error('Kling API key not configured');
-  }
-
   try {
-    const response = await fetch(`${KLING_API_BASE}/video/status/${taskId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${KLING_API_KEY}`
-      }
-    });
+    const response = await fetch(`/api/video/kling?task_id=${taskId}`);
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to check video status');
+      throw new Error(error.error || 'Failed to check video status');
     }
 
     const data = await response.json();

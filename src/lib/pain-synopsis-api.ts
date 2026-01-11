@@ -1,4 +1,4 @@
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+// OpenAI calls are proxied through /api/ai/openai
 
 export interface PainSynopsisResult {
     narrative: string;
@@ -70,15 +70,10 @@ Generate a response in the following JSON format:
 Make it deeply human, emotionally resonant, and specific to ${customerReference}. Avoid generic platitudes. ${avatarName ? `Remember to use the name ${avatarName} throughout the narrative and story beats.` : ''}`;
 
     try {
-        if (!OPENAI_API_KEY) {
-            throw new Error('OpenAI API key not configured');
-        }
-
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('/api/ai/openai', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`
             },
             body: JSON.stringify({
                 model: 'gpt-4o',

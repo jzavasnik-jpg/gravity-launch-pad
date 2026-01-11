@@ -1,51 +1,37 @@
 import { LandingPageFormData, GeneratedLandingPage } from '@/types/landing-page';
 
-// Use a fallback key or environment variable if available
-// Note: In a real app, this should be proxied through a backend to hide the key
-// For this demo/prototype, we'll assume the key is available in the environment
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-
 export async function generateLandingPageContent(
     formData: LandingPageFormData
 ): Promise<GeneratedLandingPage> {
-    if (!GEMINI_API_KEY) {
-        console.warn('Missing VITE_GEMINI_API_KEY');
-        // Return mock data if no key is present (for testing/demo purposes)
-        return getMockContent(formData);
-    }
-
     const prompt = buildLandingPagePrompt(formData);
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 2048,
-                    },
-                }),
-            }
-        );
+        // Call our secure backend proxy instead of direct API
+        const response = await fetch('/api/ai/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt,
+                model: 'gemini-pro',
+                temperature: 0.7,
+                maxOutputTokens: 2048,
+            }),
+        });
 
         if (!response.ok) {
-            throw new Error(`API Error: ${response.statusText}`);
+            const errorData = await response.json().catch(() => ({}));
+            console.warn('Gemini API error, falling back to mock:', errorData);
+            return getMockContent(formData);
         }
 
         const data = await response.json();
 
-        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        if (!data.text) {
             throw new Error('Invalid API response format');
         }
 
-        const text = data.candidates[0].content.parts[0].text;
-
         // Parse JSON from response (handle potential markdown code blocks)
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const jsonMatch = data.text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('Failed to parse AI response: No JSON found');
 
         return JSON.parse(jsonMatch[0]);

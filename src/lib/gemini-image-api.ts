@@ -1,10 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// Gemini API calls are proxied through /api/ai/gemini
 import { toast } from "sonner";
-
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-
-// Initialize Gemini API
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // Helper to downscale image to reduce token count
 async function downscaleImage(blob: Blob, maxWidth: number = 512): Promise<string> {
@@ -143,17 +138,15 @@ export interface GeminiImageResult {
 }
 
 /**
- * Internal helper to generate image with a specific model and retry logic.
+ * Internal helper to generate image with a specific model via proxy.
  */
 async function generateWithModel(
     modelName: string,
     prompt: string,
     parts: any[],
     avatarUrl?: string,
-    maxRetries: number = 1, // Reduced to 1 to prevent "loop" feeling
-    responseMimeType?: string
+    maxRetries: number = 1
 ): Promise<GeminiImageResult> {
-    const model = genAI.getGenerativeModel({ model: modelName });
     let attempt = 0;
 
     while (attempt < maxRetries) {
@@ -163,19 +156,16 @@ async function generateWithModel(
             // Handle avatar loading with strict error swallowing
             if (avatarUrl && avatarUrl.trim().length > 0) {
                 // STRICT VALIDATION: Prevent fetching text prompts as URLs
-                const isLikelyUrl = (avatarUrl.startsWith('http') || avatarUrl.startsWith('/')) &&
+                const isLikelyUrl = (avatarUrl.startsWith('http') || avatarUrl.startsWith('/') || avatarUrl.startsWith('data:')) &&
                     !avatarUrl.includes(' ') &&
-                    (avatarUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i) || avatarUrl.includes('googleusercontent'));
+                    (avatarUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i) || avatarUrl.includes('googleusercontent') || avatarUrl.startsWith('data:'));
 
                 if (!isLikelyUrl) {
                     console.warn(`[Gemini] Skipping invalid avatar URL (looks like text): "${avatarUrl}"`);
-                    // Do not attempt to fetch. Proceed without avatar.
                 } else {
                     try {
-                        console.log(`[Gemini] Attempting to load avatar: "${avatarUrl}"`);
+                        console.log(`[Gemini] Attempting to load avatar: "${avatarUrl.substring(0, 50)}..."`);
                         const avatarPart = await urlToGenerativePart(avatarUrl);
-                        // Insert avatar part AFTER the prompt (index 1) to match: [Text(Prompt), Image(Avatar), Text(Instruction)]
-                        // Assuming parts[0] is the prompt.
                         fullParts.splice(1, 0, avatarPart);
                     } catch (avatarError: any) {
                         console.warn("Failed to load avatar, proceeding without it. Error:", avatarError);
@@ -184,18 +174,29 @@ async function generateWithModel(
                 }
             }
 
-            const request = {
-                contents: [{ role: "user", parts: fullParts }],
-                generationConfig: {
-                    responseMimeType: responseMimeType,
+            // Call through proxy
+            const response = await fetch('/api/ai/gemini', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-            };
+                body: JSON.stringify({
+                    model: modelName,
+                    parts: fullParts,
+                    generateImage: true,
+                    imageModel: modelName,
+                }),
+            });
 
-            const result = await model.generateContent(request);
-            const response = result.response;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Gemini API error');
+            }
+
+            const data = await response.json();
 
             // Handle response...
-            const candidates = response.candidates;
+            const candidates = data.candidates;
             if (candidates && candidates.length > 0) {
                 const content = candidates[0].content;
                 if (content.parts && content.parts.length > 0) {
@@ -217,10 +218,9 @@ async function generateWithModel(
             if (attempt < maxRetries - 1) {
                 console.warn(`Attempt ${attempt + 1} failed for model ${modelName}. Retrying...`, error);
                 attempt++;
-                // Optional: Add a delay before retrying
                 await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
             } else {
-                throw error; // Re-throw if all retries are exhausted
+                throw error;
             }
         }
     }
@@ -236,9 +236,6 @@ export async function generateImageWithGemini(
     avatarUrl?: string,
     aspectRatio: '16:9' | '9:16' | '1:1' = '16:9'
 ): Promise<GeminiImageResult> {
-    if (!GEMINI_API_KEY) {
-        throw new Error('VITE_GEMINI_API_KEY is missing');
-    }
 
     // Explicitly construct parts to ensure correct format (Text, Image, Text)
     const parts: any[] = [

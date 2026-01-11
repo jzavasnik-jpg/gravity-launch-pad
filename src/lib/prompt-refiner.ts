@@ -1,21 +1,12 @@
-// import { OpenAI } from 'openai'; // Removed to avoid dependency issues
-
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-
 export async function refinePromptWithUserInstruction(
     currentPrompt: string,
     userInstruction: string,
     newAssets: any[] = []
 ): Promise<string> {
-    if (!OPENAI_API_KEY) {
-        console.warn("Missing OpenAI Key for prompt refinement");
-        return currentPrompt + " " + userInstruction;
-    }
-
     const systemPrompt = `
     You are an expert Prompt Engineer for Google's Gemini 3 Pro model.
     Your task is to UPDATE an existing image generation prompt based on the user's natural language instruction.
-    
+
     EXISTING PROMPT:
     "${currentPrompt}"
 
@@ -39,11 +30,10 @@ export async function refinePromptWithUserInstruction(
     `;
 
     try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        const response = await fetch("/api/ai/openai", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${OPENAI_API_KEY}`
             },
             body: JSON.stringify({
                 model: "gpt-4o",
@@ -53,6 +43,11 @@ export async function refinePromptWithUserInstruction(
                 temperature: 0.7
             })
         });
+
+        if (!response.ok) {
+            console.warn("OpenAI proxy error, using fallback");
+            return currentPrompt + " " + userInstruction;
+        }
 
         const data = await response.json();
         return data.choices[0]?.message?.content || currentPrompt;

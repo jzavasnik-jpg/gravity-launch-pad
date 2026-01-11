@@ -18,8 +18,7 @@ import type { SixSCategory } from './market-intel-api';
  * - Blog comments
  */
 
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-const GOOGLE_CSE_ID = import.meta.env.VITE_GOOGLE_CSE_ID; // Custom Search Engine ID
+// Google Search API calls are proxied through /api/search/google
 
 export interface GoogleSearchResult {
     id: string;
@@ -47,12 +46,6 @@ export async function searchGoogleDiscussions(
     targetAudience: string,
     maxResults: number = 20
 ): Promise<GoogleSearchResult[]> {
-    // If no API key, use fallback
-    if (!GOOGLE_API_KEY || !GOOGLE_CSE_ID) {
-        console.warn('[Google Search] API credentials not configured, using web scraping fallback');
-        return await scrapeDiscussions(keywords, targetAudience, maxResults);
-    }
-
     try {
         // Build search query targeting discussion sites
         const discussionSites = [
@@ -66,16 +59,21 @@ export async function searchGoogleDiscussions(
 
         const searchQuery = `${keywords} ${targetAudience} (${discussionSites})`;
 
-        const response = await fetch(
-            `https://www.googleapis.com/customsearch/v1?` +
-            `key=${GOOGLE_API_KEY}&cx=${GOOGLE_CSE_ID}` +
-            `&q=${encodeURIComponent(searchQuery)}` +
-            `&num=${Math.min(maxResults, 10)}` + // Google CSE max is 10 per request
-            `&dateRestrict=y1` // Last year
-        );
+        const response = await fetch('/api/search/google', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: searchQuery,
+                num: Math.min(maxResults, 10),
+                dateRestrict: 'y1',
+            }),
+        });
 
         if (!response.ok) {
-            throw new Error(`Google API error: ${response.status}`);
+            console.warn('[Google Search] API error, using fallback');
+            return await scrapeDiscussions(keywords, targetAudience, maxResults);
         }
 
         const data = await response.json();

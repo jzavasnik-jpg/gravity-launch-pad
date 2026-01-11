@@ -1,12 +1,4 @@
-const REDDIT_CLIENT_ID = import.meta.env.VITE_REDDIT_CLIENT_ID;
-const REDDIT_CLIENT_SECRET = import.meta.env.VITE_REDDIT_CLIENT_SECRET;
-const REDDIT_USER_AGENT = import.meta.env.VITE_REDDIT_USER_AGENT || 'GravityInsight/1.0';
-
-interface RedditAccessToken {
-    access_token: string;
-    expires_in: number;
-    token_type: string;
-}
+// Reddit API calls are proxied through /api/search/reddit
 
 interface RedditPost {
     data: {
@@ -23,17 +15,6 @@ interface RedditPost {
     };
 }
 
-interface RedditComment {
-    data: {
-        id: string;
-        body: string;
-        author: string;
-        score: number;
-        created_utc: number;
-        permalink: string;
-    };
-}
-
 import type { SixSCategory } from './market-intel-api';
 
 export interface RedditQuote {
@@ -45,53 +26,6 @@ export interface RedditQuote {
     timestamp: string;
     relevanceScore: number;
     emotionalTone: SixSCategory;
-}
-
-let cachedToken: { token: string; expiresAt: number } | null = null;
-
-/**
- * Authenticate with Reddit API and get access token
- */
-async function getAccessToken(): Promise<string> {
-    // Check cache
-    if (cachedToken && cachedToken.expiresAt > Date.now()) {
-        return cachedToken.token;
-    }
-
-    if (!REDDIT_CLIENT_ID || !REDDIT_CLIENT_SECRET) {
-        throw new Error('Reddit API credentials not configured');
-    }
-
-    const auth = btoa(`${REDDIT_CLIENT_ID}:${REDDIT_CLIENT_SECRET}`);
-
-    try {
-        const response = await fetch('https://www.reddit.com/api/v1/access_token', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Basic ${auth}`,
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': REDDIT_USER_AGENT,
-            },
-            body: 'grant_type=client_credentials',
-        });
-
-        if (!response.ok) {
-            throw new Error(`Reddit auth failed: ${response.statusText}`);
-        }
-
-        const data: RedditAccessToken = await response.json();
-
-        // Cache token (expires in 1 hour typically)
-        cachedToken = {
-            token: data.access_token,
-            expiresAt: Date.now() + (data.expires_in * 1000) - 60000, // 1 min buffer
-        };
-
-        return data.access_token;
-    } catch (error) {
-        console.error('Reddit authentication error:', error);
-        throw error;
-    }
 }
 
 /**
@@ -139,20 +73,24 @@ export async function searchReddit(
     limit: number = 15
 ): Promise<RedditQuote[]> {
     try {
-        const token = await getAccessToken();
         const subreddits = suggestSubreddits(targetAudience);
         const quotes: RedditQuote[] = [];
 
-        // Search across multiple subreddits
+        // Search across multiple subreddits via proxy
         for (const subreddit of subreddits.slice(0, 3)) { // Limit to 3 subreddits to avoid rate limits
             try {
-                const searchUrl = `https://oauth.reddit.com/r/${subreddit}/search?q=${encodeURIComponent(keywords)}&restrict_sr=1&sort=relevance&limit=10&t=year`;
-
-                const response = await fetch(searchUrl, {
+                const response = await fetch('/api/search/reddit', {
+                    method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'User-Agent': REDDIT_USER_AGENT,
+                        'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({
+                        keywords,
+                        subreddit,
+                        limit: 10,
+                        sort: 'relevance',
+                        time: 'year',
+                    }),
                 });
 
                 if (!response.ok) {
@@ -161,7 +99,7 @@ export async function searchReddit(
                 }
 
                 const data = await response.json();
-                const posts: RedditPost[] = data.data.children || [];
+                const posts: RedditPost[] = data.data?.children || [];
 
                 // Extract quotes from posts
                 for (const post of posts) {
@@ -184,7 +122,7 @@ export async function searchReddit(
                     quotes.push(quote);
                 }
 
-                // Add delay to respect rate limits (60 requests/minute = 1 per second)
+                // Add delay to respect rate limits
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
             } catch (error) {
@@ -293,29 +231,33 @@ export async function analyzeRedditSentiment(
     targetAudience: string
 ): Promise<RedditSentimentResult> {
     try {
-        const token = await getAccessToken();
         const subreddits = suggestSubreddits(targetAudience);
 
         let totalPosts = 0;
         let sentimentCounts = { frustrated: 0, hopeful: 0, desperate: 0, skeptical: 0, determined: 0 };
         let themeWords: Map<string, number> = new Map();
 
-        // Collect posts for analysis (NOT for display)
+        // Collect posts for analysis (NOT for display) via proxy
         for (const subreddit of subreddits.slice(0, 3)) {
             try {
-                const searchUrl = `https://oauth.reddit.com/r/${subreddit}/search?q=${encodeURIComponent(keywords)}&restrict_sr=1&sort=relevance&limit=25&t=year`;
-
-                const response = await fetch(searchUrl, {
+                const response = await fetch('/api/search/reddit', {
+                    method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'User-Agent': REDDIT_USER_AGENT,
+                        'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({
+                        keywords,
+                        subreddit,
+                        limit: 25,
+                        sort: 'relevance',
+                        time: 'year',
+                    }),
                 });
 
                 if (!response.ok) continue;
 
                 const data = await response.json();
-                const posts: RedditPost[] = data.data.children || [];
+                const posts: RedditPost[] = data.data?.children || [];
 
                 for (const post of posts) {
                     const text = (post.data.selftext || post.data.title || '').toLowerCase();

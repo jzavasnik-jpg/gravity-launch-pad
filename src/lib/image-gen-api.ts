@@ -78,12 +78,6 @@ export async function generateCompleteSlide(
     characterDescription?: string,
     aspectRatio: 'landscape' | 'portrait' = 'portrait'
 ): Promise<string> {
-    const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-    if (!GEMINI_API_KEY) {
-        throw new Error('Gemini API key not configured. Add VITE_GEMINI_API_KEY to .env');
-    }
-
     const orientation = aspectRatio === 'portrait' ? '9:16 vertical' : '16:9 horizontal';
 
     const prompt = `Create a stunning, complete video slide image ready for animation.
@@ -112,25 +106,21 @@ CRITICAL: Maintain exact same character in every scene - same face, clothing, ag
 Create a single, complete slide image that looks like a professional video frame - ready to animate.`;
 
     try {
-        const baseUrl = import.meta.env.DEV ? '/google-api' : 'https://generativelanguage.googleapis.com';
-        const model = 'gemini-3-pro-image-preview';
-
-        const response = await fetch(
-            `${baseUrl}/v1alpha/models/${model}:generateImages?key=${GEMINI_API_KEY}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompt: prompt,
-                    numberOfImages: 1,
-                    aspectRatio: aspectRatio === 'portrait' ? '9:16' : '16:9',
-                    safetyFilterLevel: 'BLOCK_ONLY_HIGH',
-                    personGeneration: characterDescription ? 'ALLOW_ADULT' : 'DONT_ALLOW',
-                })
-            }
-        );
+        // Call our secure backend proxy instead of direct API
+        const response = await fetch('/api/ai/gemini', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                type: 'image',
+                numberOfImages: 1,
+                aspectRatio: aspectRatio === 'portrait' ? '9:16' : '16:9',
+                safetyFilterLevel: 'BLOCK_ONLY_HIGH',
+                personGeneration: characterDescription ? 'ALLOW_ADULT' : 'DONT_ALLOW',
+            })
+        });
 
         if (!response.ok) {
             const errorText = await response.text();

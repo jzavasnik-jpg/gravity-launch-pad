@@ -91,9 +91,7 @@ async function generateViralPrompt(
     isIterative: boolean = false,
     currentPrompt?: string
 ): Promise<string> {
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-        throw new Error('OpenAI API key missing for prompt generation');
-    }
+    // OpenAI calls are proxied through /api/ai/openai
 
     // Use explicit hook if provided, otherwise derive from content
     const hook = explicitHook || content.split('\n')[0].substring(0, 150);
@@ -186,11 +184,10 @@ Create the detailed viral image prompt now.
     }
 
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('/api/ai/openai', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
             },
             body: JSON.stringify({
                 model: 'gpt-4o',
