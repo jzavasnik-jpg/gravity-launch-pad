@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useApp } from '@/context/AppContext';
 import { FloatingCard } from '@/components/ui/FloatingCard';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { AvatarGalleryCard, PLACEHOLDER_AVATARS, AvatarCardData } from '@/components/AvatarGalleryCard';
 import { CircularProgress } from '@/components/CircularProgress';
 import {
@@ -46,6 +47,7 @@ export default function DashboardPage() {
           const sessionAvatars = await getAllAvatarsBySessionId(session.id);
           if (sessionAvatars && sessionAvatars.length > 0) {
             const avatarData: AvatarCardData[] = sessionAvatars.map(avatar => ({
+              id: avatar.id,
               photo_url: avatar.photo_url || "",
               name: avatar.name,
               age: avatar.age || 0,
@@ -54,6 +56,12 @@ export default function DashboardPage() {
               topInsight: (avatar.pain_points && Array.isArray(avatar.pain_points) && avatar.pain_points[0]) ||
                 (avatar.dreams && Array.isArray(avatar.dreams) && avatar.dreams[0]) ||
                 "No insights available",
+              pain_points: avatar.pain_points || [],
+              daily_challenges: avatar.daily_challenges || [],
+              dreams: avatar.dreams || [],
+              buying_triggers: avatar.buying_triggers || [],
+              pain_points_matrix: avatar.pain_points_matrix || {},
+              six_s_scores: avatar.six_s_scores || {},
               isPlaceholder: false,
             }));
             setAvatars(avatarData);
@@ -135,7 +143,11 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Avatars Created</p>
-              <p className="text-2xl font-bold text-foreground">{avatars.length || 0}</p>
+              {loading ? (
+                <Skeleton className="h-8 w-12 mt-1" />
+              ) : (
+                <p className="text-2xl font-bold text-foreground">{avatars.length || 0}</p>
+              )}
             </div>
           </div>
         </FloatingCard>
@@ -147,9 +159,13 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">ICP Progress</p>
-              <p className="text-2xl font-bold text-foreground">
-                {latestSession?.completed ? '100%' : `${Math.round((latestSession?.answers?.filter((a: any) => a)?.length || 0) / 14 * 100)}%`}
-              </p>
+              {loading ? (
+                <Skeleton className="h-8 w-16 mt-1" />
+              ) : (
+                <p className="text-2xl font-bold text-foreground">
+                  {latestSession?.completed ? '100%' : `${Math.round((latestSession?.answers?.filter((a: any) => a)?.length || 0) / 14 * 100)}%`}
+                </p>
+              )}
             </div>
           </div>
         </FloatingCard>
@@ -161,7 +177,11 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Plan Type</p>
-              <p className="text-2xl font-bold text-foreground capitalize">{userRecord?.plan_type || 'Free'}</p>
+              {loading ? (
+                <Skeleton className="h-8 w-20 mt-1" />
+              ) : (
+                <p className="text-2xl font-bold text-foreground capitalize">{userRecord?.plan_type || 'Free'}</p>
+              )}
             </div>
           </div>
         </FloatingCard>
@@ -180,16 +200,39 @@ export default function DashboardPage() {
 
         <FloatingCard intensity="medium" className="p-6">
           {loading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading avatars...</div>
+            <div className="flex gap-6 overflow-x-auto pb-4 px-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-[360px] flex-shrink-0 bg-background/5 backdrop-blur-lg border border-border/10 rounded-lg p-6">
+                  <div className="flex gap-4 mb-4">
+                    <Skeleton className="w-20 h-20 rounded-lg" />
+                    <div className="flex-1">
+                      <Skeleton className="h-5 w-32 mb-2" />
+                      <Skeleton className="h-3 w-16 mb-2" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-12 w-full mb-4" />
+                  <Skeleton className="h-4 w-3/4 mb-4" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ))}
+            </div>
           ) : avatars.length > 0 ? (
             <AvatarGalleryCard
               avatars={avatars.slice(0, 3)}
-              onViewDetails={() => router.push('/icp/review')}
+              onViewDetails={(avatar) => router.push('/icp/review')}
             />
           ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">No avatars yet. Complete your ICP interview to generate customer avatars.</p>
-              <Button onClick={() => router.push('/icp')}>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Customer Avatars Yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Complete the ICP interview to generate AI-powered customer avatars that will guide your marketing strategy.
+              </p>
+              <Button onClick={() => router.push('/icp')} size="lg">
+                <Sparkles className="w-4 h-4 mr-2" />
                 Start ICP Interview
               </Button>
             </div>
