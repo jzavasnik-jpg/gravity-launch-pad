@@ -1,9 +1,9 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { User, Users, ArrowRight } from 'lucide-react';
 import { useProjectStore, CampaignMode } from '@/store/projectStore';
-import { useNavigate } from 'react-router-dom';
 
 interface CampaignSetupModalProps {
     isOpen: boolean;
@@ -11,13 +11,13 @@ interface CampaignSetupModalProps {
 }
 
 export function CampaignSetupModal({ isOpen, onClose }: CampaignSetupModalProps) {
-    const navigate = useNavigate();
+    const router = useRouter();
     const { setCampaignMode } = useProjectStore();
 
     const handleSelectMode = (mode: CampaignMode) => {
         setCampaignMode(mode);
         onClose();
-        navigate('/veritas/content-composer');
+        router.push('/veritas/content-composer');
     };
 
     return (
