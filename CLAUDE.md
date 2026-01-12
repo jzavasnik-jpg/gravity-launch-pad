@@ -58,8 +58,9 @@ Copy `.env.example` to `.env.local` and configure:
 ## Brand Guidelines
 
 - **Primary Color:** Cyan (#4FD1FF)
-- **Font (Headings):** Syne
-- **Font (Body):** System default
+- **Font (Headings):** Inter (font-display)
+- **Font (Body):** Inter
+- **Font (Mono):** JetBrains Mono
 - **Style:** Dark mode first, floating card effects
 
 ## Routes

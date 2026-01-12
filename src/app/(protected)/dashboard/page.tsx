@@ -118,7 +118,7 @@ export default function DashboardPage() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Welcome Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>
+        <h1 className="text-3xl font-bold text-foreground mb-2 font-display">
           Welcome back{userRecord?.name ? `, ${userRecord.name}` : ''}!
         </h1>
         <p className="text-muted-foreground">
@@ -170,7 +170,7 @@ export default function DashboardPage() {
       {/* Avatars Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-foreground" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>
+          <h2 className="text-xl font-semibold text-foreground font-display">
             Your Customer Avatars
           </h2>
           <Button variant="ghost" size="sm" onClick={() => router.push('/icp/review')}>
@@ -199,7 +199,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>
+        <h2 className="text-xl font-semibold text-foreground mb-4 font-display">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -12,6 +12,8 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { Sparkles, Target, TrendingUp, User, FileText, Rocket, Zap, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { getIncompleteICPSession, getAllUserSessions, getLatestICPSession, getAllAvatarsBySessionId } from "@/lib/database-service";
+import { CircularProgress } from "@/components/CircularProgress";
+import { AvatarGalleryCard, type AvatarCardData } from "@/components/AvatarGalleryCard";
 
 function LandingPageContent() {
   const { appState, resetState, setUserInfo, setPlanType, initializeSession, hydrateSessionData } = useApp();
@@ -21,6 +23,7 @@ function LandingPageContent() {
   const [incompleteSession, setIncompleteSession] = useState<any>(null);
   const [hasAnySessions, setHasAnySessions] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [latestAvatars, setLatestAvatars] = useState<AvatarCardData[]>([]);
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -43,6 +46,32 @@ function LandingPageContent() {
         const incomplete = await getIncompleteICPSession(user.uid);
         if (incomplete) {
           setIncompleteSession(incomplete);
+        }
+
+        // Fetch latest avatars
+        const latestSession = await getLatestICPSession(user.uid);
+        if (latestSession?.id) {
+          const avatars = await getAllAvatarsBySessionId(latestSession.id);
+          if (avatars && avatars.length > 0) {
+            // Map to AvatarCardData format and take top 2
+            const mappedAvatars: AvatarCardData[] = avatars.slice(0, 2).map((avatar: any) => ({
+              id: avatar.id,
+              photo_url: avatar.photo_url || '',
+              name: avatar.name || 'Unknown',
+              age: avatar.age || 0,
+              gender: avatar.gender || 'Unknown',
+              occupation: avatar.occupation || 'Unknown',
+              topInsight: avatar.pain_points?.[0] || '',
+              story: avatar.daily_challenges?.[0] || '',
+              pain_points: avatar.pain_points || [],
+              daily_challenges: avatar.daily_challenges || [],
+              dreams: avatar.dreams || [],
+              buying_triggers: avatar.buying_triggers || [],
+              pain_points_matrix: avatar.pain_points_matrix || {},
+              six_s_scores: avatar.six_s_scores || {},
+            }));
+            setLatestAvatars(mappedAvatars);
+          }
         }
 
         setLoading(false);
@@ -117,7 +146,7 @@ function LandingPageContent() {
                 <span className="text-sm text-primary font-medium">AI-Powered Market Validation</span>
               </div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 leading-tight" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 leading-tight font-display">
                 Launch Pad
                 <span className="block text-primary">by Gravity</span>
               </h1>
@@ -190,7 +219,7 @@ function LandingPageContent() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 mb-4">
                   <Target className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>
+                <h3 className="text-xl font-semibold text-foreground mb-2 font-display">
                   14 Core Questions
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -202,7 +231,7 @@ function LandingPageContent() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 mb-4">
                   <TrendingUp className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>
+                <h3 className="text-xl font-semibold text-foreground mb-2 font-display">
                   Emotional Mapping
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -214,7 +243,7 @@ function LandingPageContent() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 mb-4">
                   <BarChart3 className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>
+                <h3 className="text-xl font-semibold text-foreground mb-2 font-display">
                   Market Intelligence
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -222,6 +251,40 @@ function LandingPageContent() {
                 </p>
               </FloatingCard>
             </div>
+
+            {/* Progress Tracker & Avatars Section - Only show for authenticated users */}
+            {isAuthenticated && !loading && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                {/* Progress Tracker */}
+                <FloatingCard intensity="medium" className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-4 font-display">
+                    Progress Tracker
+                  </h3>
+                  <div className="flex flex-col items-center">
+                    <CircularProgress
+                      current={incompleteSession?.answers?.filter((a: any) => a).length || (hasAnySessions ? 14 : 0)}
+                      total={14}
+                    />
+                    <p className="text-xs text-center mt-4 text-muted-foreground">
+                      {incompleteSession ? "Session In Progress" : hasAnySessions ? "Last Session Completed" : "No Active Session"}
+                    </p>
+                  </div>
+                </FloatingCard>
+
+                {/* Example Avatars */}
+                <FloatingCard intensity="medium" className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-4 font-display">
+                    {latestAvatars.length > 0 ? 'Your Latest Avatars' : 'Example Avatars'}
+                  </h3>
+                  <div className="-mx-6">
+                    <AvatarGalleryCard
+                      avatars={latestAvatars.length > 0 ? latestAvatars : undefined}
+                      onViewDetails={latestAvatars.length > 0 ? () => router.push('/dashboard') : undefined}
+                    />
+                  </div>
+                </FloatingCard>
+              </div>
+            )}
 
             {/* Value Props */}
             <div className="text-center">

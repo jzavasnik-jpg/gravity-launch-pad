@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Set explicit turbopack root to silence lockfile warning
+  experimental: {
+    turbo: {
+      root: __dirname,
+    },
+  },
   // Allow CORS for CTO Command Center preview iframe
   async headers() {
     return [

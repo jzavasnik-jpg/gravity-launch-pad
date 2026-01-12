@@ -87,8 +87,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         <LayoutTemplate className="h-5 w-5" />
                     </Button>
                     <div className="flex items-center gap-2">
-                        <span className="text-xl font-bold tracking-tight text-primary" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>G</span>
-                        <span className="text-lg tracking-tight text-foreground" style={{ fontFamily: 'Syne, system-ui, sans-serif' }}>Launch Pad</span>
+                        <span className="text-xl font-bold tracking-tight text-primary font-display">G</span>
+                        <span className="text-lg tracking-tight text-foreground font-display">Launch Pad</span>
                     </div>
                 </div>
 
