@@ -1,8 +1,8 @@
+'use client';
+
 import React from 'react';
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
 
 interface MediaLabLayoutProps {
     children: React.ReactNode;
@@ -17,7 +17,6 @@ export const MediaLabLayout = ({
     rightRail,
     bottomBar
 }: MediaLabLayoutProps) => {
-    const navigate = useNavigate();
 
     return (
         <div className="min-h-screen bg-void text-g-text font-sans overflow-hidden flex flex-col dark">
