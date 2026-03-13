@@ -1,4 +1,4 @@
-# Launch Pad by Gravity
+# Launch by Gravity
 
 AI-powered market validation and product launch platform.
 

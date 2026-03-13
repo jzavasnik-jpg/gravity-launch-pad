@@ -161,7 +161,7 @@ export default function ICPReviewPage() {
       return (
         <Card
           key={question.id}
-          className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]"
+          className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]"
         >
           <div className="flex items-start gap-4 mb-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -190,7 +190,7 @@ export default function ICPReviewPage() {
                 className={cn(
                   "p-4 rounded-lg text-left transition-all duration-300",
                   appState.selectedCoreDesire?.name === desire.name
-                    ? "bg-primary/20 border-2 border-primary shadow-[0_0_20px_-5px_rgba(79,209,255,0.3)]"
+                    ? "bg-primary/20 border-2 border-primary shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                     : "bg-muted/50 border border-border hover:border-primary/50"
                 )}
               >
@@ -208,7 +208,7 @@ export default function ICPReviewPage() {
       return (
         <Card
           key={question.id}
-          className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]"
+          className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]"
         >
           <div className="flex items-start gap-4 mb-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -237,7 +237,7 @@ export default function ICPReviewPage() {
                 className={cn(
                   "p-4 rounded-lg text-left transition-all duration-300",
                   appState.selectedSixS?.name === sixS.name
-                    ? "bg-primary/20 border-2 border-primary shadow-[0_0_20px_-5px_rgba(79,209,255,0.3)]"
+                    ? "bg-primary/20 border-2 border-primary shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                     : "bg-muted/50 border border-border hover:border-primary/50"
                 )}
               >
@@ -254,7 +254,7 @@ export default function ICPReviewPage() {
     return (
       <Card
         key={question.id}
-        className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]"
+        className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]"
       >
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -373,7 +373,7 @@ export default function ICPReviewPage() {
             onClick={handleSaveAll}
             disabled={saving || !hasUnsavedChanges}
             className={cn(
-              "bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(79,209,255,0.6)] hover:bg-primary/90",
+              "bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.6)] hover:bg-primary/90",
               !hasUnsavedChanges && "opacity-50"
             )}
           >
@@ -389,7 +389,7 @@ export default function ICPReviewPage() {
 
       {/* Completion Status */}
       <div className="max-w-4xl mx-auto mb-8">
-        <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]">
+        <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]">
           <div className="flex items-center gap-4">
             <div className={cn(
               "w-12 h-12 rounded-xl flex items-center justify-center",

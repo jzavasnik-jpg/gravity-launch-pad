@@ -229,7 +229,7 @@ export default function StrategyPage() {
                     onClick={() => router.push('/veritas/content-composer')}
                     disabled={!selectedStoryStrategyId}
                     className={cn(
-                        "shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]",
+                        "shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]",
                         selectedStoryStrategyId
                             ? "bg-primary text-primary-foreground hover:bg-primary/90"
                             : "bg-muted text-muted-foreground cursor-not-allowed"
@@ -685,7 +685,7 @@ export default function StrategyPage() {
             <div className="flex-1 overflow-y-auto p-6">
                 {loading && !strategy ? (
                     <div className="h-96 flex items-center justify-center">
-                        <Card className="bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)] max-w-lg">
+                        <Card className="bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)] max-w-lg">
                             <MagicLoader
                                 category="strategy"
                                 title="Generating Content Strategy"
@@ -701,7 +701,7 @@ export default function StrategyPage() {
                         <p className="text-muted-foreground mb-4">No strategy generated yet. Ensure you have Market Intel first.</p>
                         <Button
                             onClick={() => router.push('/veritas/market-radar')}
-                            className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                            className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                         >
                             Go to Market Radar
                         </Button>
@@ -815,7 +815,7 @@ export default function StrategyPage() {
                                                                 className={cn(
                                                                     "p-4 cursor-pointer transition-all duration-300 hover:-translate-y-1",
                                                                     isSelected
-                                                                        ? "border-primary/50 shadow-[0_0_30px_-8px_rgba(79,209,255,0.4)] bg-primary/5"
+                                                                        ? "border-primary/50 shadow-[0_0_30px_-8px_rgba(255,255,255,0.4)] bg-primary/5"
                                                                         : isAIRecommended
                                                                         ? "border-emerald-500/30 bg-emerald-500/5"
                                                                         : "border-border hover:border-primary/30 bg-card/50"
@@ -869,7 +869,7 @@ export default function StrategyPage() {
                                     className="mt-6"
                                 >
                                     <Card className={cn(
-                                        "p-5 bg-card/85 backdrop-blur-xl shadow-[0_0_30px_-8px_rgba(79,209,255,0.2)]",
+                                        "p-5 bg-card/85 backdrop-blur-xl shadow-[0_0_30px_-8px_rgba(255,255,255,0.2)]",
                                         activeFramework.isUserSelected
                                             ? "border-primary/40"
                                             : "border-emerald-500/30"
@@ -1051,7 +1051,7 @@ export default function StrategyPage() {
                                                                 className={cn(
                                                                     "p-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5",
                                                                     isUserSelected
-                                                                        ? "border-primary/50 shadow-[0_0_20px_-5px_rgba(79,209,255,0.4)] bg-primary/5 ring-2 ring-primary/30"
+                                                                        ? "border-primary/50 shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] bg-primary/5 ring-2 ring-primary/30"
                                                                         : isAISelected
                                                                         ? "border-yellow-500/30 bg-yellow-500/5"
                                                                         : "border-border hover:border-primary/30 bg-card/50"
@@ -1167,8 +1167,8 @@ export default function StrategyPage() {
                                                 "p-6 rounded-xl border text-left transition-all duration-300",
                                                 "bg-card/85 backdrop-blur-xl",
                                                 isSelected
-                                                    ? `${tempDef.borderColor} shadow-[0_0_60px_-5px_rgba(79,209,255,0.4),0_30px_60px_-15px_rgba(0,0,0,0.9)] ring-2 ring-offset-2 ring-offset-background`
-                                                    : "border-border shadow-[0_0_40px_-8px_rgba(79,209,255,0.2),0_25px_50px_-15px_rgba(0,0,0,0.8)] hover:border-primary/30 hover:shadow-[0_0_50px_-5px_rgba(79,209,255,0.3)]"
+                                                    ? `${tempDef.borderColor} shadow-[0_0_60px_-5px_rgba(255,255,255,0.4),0_30px_60px_-15px_rgba(0,0,0,0.9)] ring-2 ring-offset-2 ring-offset-background`
+                                                    : "border-border shadow-[0_0_40px_-8px_rgba(255,255,255,0.2),0_25px_50px_-15px_rgba(0,0,0,0.8)] hover:border-primary/30 hover:shadow-[0_0_50px_-5px_rgba(255,255,255,0.3)]"
                                             )}
                                             style={isSelected ? {
                                                 ['--tw-ring-color' as any]: temp === 'cold' ? 'rgba(96, 165, 250, 0.5)' : temp === 'warm' ? 'rgba(251, 146, 60, 0.5)' : 'rgba(248, 113, 113, 0.5)'
@@ -1279,7 +1279,7 @@ export default function StrategyPage() {
                             <Card className={cn(
                                 "p-6 text-center transition-all",
                                 hasAllFoundationalSelections
-                                    ? "bg-primary/5 border-primary/30 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)]"
+                                    ? "bg-primary/5 border-primary/30 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)]"
                                     : "bg-card/50 border-border"
                             )}>
                                 {/* Selection Status */}
@@ -1343,7 +1343,7 @@ export default function StrategyPage() {
                                     className={cn(
                                         "px-8 py-6 text-lg",
                                         hasAllFoundationalSelections
-                                            ? "bg-primary text-primary-foreground shadow-[0_0_30px_-5px_rgba(79,209,255,0.6)] hover:bg-primary/90 hover:shadow-[0_0_40px_-5px_rgba(79,209,255,0.7)]"
+                                            ? "bg-primary text-primary-foreground shadow-[0_0_30px_-5px_rgba(255,255,255,0.6)] hover:bg-primary/90 hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.7)]"
                                             : "bg-muted text-muted-foreground cursor-not-allowed"
                                     )}
                                 >
@@ -1424,7 +1424,7 @@ export default function StrategyPage() {
                                                     className={cn(
                                                         "p-6 bg-card/85 backdrop-blur-xl border transition-all duration-300 cursor-pointer",
                                                         isSelected
-                                                            ? "border-primary/50 shadow-[0_0_50px_-8px_rgba(79,209,255,0.5)] ring-2 ring-primary/30"
+                                                            ? "border-primary/50 shadow-[0_0_50px_-8px_rgba(255,255,255,0.5)] ring-2 ring-primary/30"
                                                             : isRecommended
                                                             ? "border-emerald-500/40 shadow-[0_0_40px_-8px_rgba(16,185,129,0.4)] hover:-translate-y-1"
                                                             : isRunnerUp

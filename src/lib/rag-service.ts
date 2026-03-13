@@ -1,14 +1,20 @@
 import { saveSessionVector } from "@/lib/database-service";
 
+// Supabase Edge Function URL for embedding generation
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
 /**
  * Generates an embedding vector for a given text using Gemini
+ * Uses Supabase Edge Function with API keys stored in Supabase Vault
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
     try {
-        const response = await fetch('http://localhost:3001/api/generate-embedding', {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-embedding`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({ text })
         });
@@ -20,7 +26,11 @@ export async function generateEmbedding(text: string): Promise<number[]> {
         const data = await response.json();
         return data.embedding.values;
     } catch (error) {
-        console.error("Error generating embedding:", error);
+        // Silently fail if embedding service isn't running - not critical for app function
+        // Only log in development if explicitly enabled
+        if (process.env.NODE_ENV === 'development' && process.env.DEBUG_RAG) {
+            console.warn("[RAG] Embedding service unavailable");
+        }
         return [];
     }
 }
@@ -31,7 +41,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 export async function vectorizeSession(sessionId: string, data: any) {
     if (!sessionId || !data) return;
 
-    console.log(`[RAG] Vectorizing session ${sessionId}...`);
+    // Vectorization runs silently in background
 
     // 1. Construct a rich context string from all available data
     const contextParts = [];
@@ -81,7 +91,7 @@ export async function vectorizeSession(sessionId: string, data: any) {
     const embedding = await generateEmbedding(fullContext);
 
     if (embedding.length === 0) {
-        console.error("[RAG] Failed to generate embedding.");
+        // Silently return - embedding service likely not running
         return;
     }
 

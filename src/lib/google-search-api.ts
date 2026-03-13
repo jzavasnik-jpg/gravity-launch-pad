@@ -124,20 +124,9 @@ export async function getPeopleAlsoAsk(
     // PAA requires either SerpAPI or scraping Google results
     // For now, we'll use a proxy approach through the backend
 
-    try {
-        const response = await fetch('http://localhost:3001/api/paa', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ keywords, problem })
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            return data.questions || [];
-        }
-    } catch (error) {
-        console.warn('[PAA] Backend unavailable, using AI-generated questions');
-    }
+    // PAA endpoint not available in Next.js migration - use AI fallback directly
+    // The original backend endpoint was for scraping Google PAA boxes which requires
+    // specialized tooling. For now, we use AI-powered generation which is more reliable.
 
     // Fallback: Generate AI-powered contextual PAA questions
     return generateAIPoweredPAA(keywords, problem, marketingContext, targetAudience);
@@ -151,22 +140,11 @@ async function scrapeDiscussions(
     targetAudience: string,
     maxResults: number
 ): Promise<GoogleSearchResult[]> {
-    try {
-        const response = await fetch('http://localhost:3001/api/scrape-discussions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ keywords, targetAudience, maxResults })
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            return data.results || [];
-        }
-    } catch (error) {
-        console.warn('[Scrape] Backend unavailable:', error);
-    }
-
-    // Return empty if no backend
+    // Scraping endpoint not available in Next.js migration
+    // This functionality requires specialized scraping tools that aren't
+    // suitable for serverless environments. Return empty to fall back
+    // to other data sources (YouTube, Google Search API).
+    console.log('[Scrape] Scraping not available in serverless environment, using other sources');
     return [];
 }
 
@@ -183,7 +161,9 @@ function detectSource(displayLink: string): GoogleSearchResult['source'] {
     return 'blog';
 }
 
-const BACKEND_URL = 'http://localhost:3001';
+// Use Supabase Edge Functions for AI operations (API keys in Vault)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
  * Generate AI-powered contextual PAA questions based on full ICP context
@@ -236,9 +216,12 @@ MARKETING CONTEXT:
 
 Generate 4-6 specific "People Also Ask" questions that validate this problem exists in the market. Return as JSON array.`;
 
-        const response = await fetch(`${BACKEND_URL}/api/generate-copy`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-copy`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            },
             body: JSON.stringify({ systemPrompt, userPrompt }),
         });
 

@@ -7,7 +7,9 @@
 
 import type { SixS } from './six-s-constants';
 
-const API_BASE = 'http://localhost:3001';
+// Use Supabase Edge Functions for AI operations (API keys in Vault)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // ==================== TYPES ====================
 
@@ -208,9 +210,12 @@ export async function conductDeepResearch(
     console.log('[Deep Research] Pain points:', icpContext.painPoints.slice(0, 3));
     console.log('[Deep Research] Primary Six S:', icpContext.primarySixS);
 
-    const response = await fetch(`${API_BASE}/api/deep-research`, {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/deep-research`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
         body: JSON.stringify({
             icpContext,
             researchFocus,

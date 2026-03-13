@@ -261,7 +261,7 @@ export default function MarketRadarPage() {
                 <Button
                     onClick={() => router.push('/veritas/strategy')}
                     disabled={!research}
-                    className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:bg-primary/90"
                 >
                     Next: AI Strategy <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -279,7 +279,7 @@ export default function MarketRadarPage() {
             case 'Supported': return 'text-green-400 border-green-500/20 bg-green-500/10';
             case 'Successful': return 'text-yellow-400 border-yellow-500/20 bg-yellow-500/10';
             case 'Surprise & Delight': return 'text-pink-400 border-pink-500/20 bg-pink-500/10';
-            case 'Sharing': return 'text-cyan-400 border-cyan-500/20 bg-cyan-500/10';
+            case 'Sharing': return 'text-primary border-primary/20 bg-primary/10';
             default: return 'text-primary border-primary/20 bg-primary/10';
         }
     };
@@ -329,7 +329,7 @@ export default function MarketRadarPage() {
             {/* ICP Context Panel */}
             {(appState.selectedCoreDesire || appState.selectedSixS || appState.avatarData) && (
                 <div className="max-w-7xl mx-auto">
-                    <Card className="p-4 bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]">
+                    <Card className="p-4 bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]">
                         <h3 className="text-sm font-display font-semibold text-foreground flex items-center gap-2 mb-4">
                             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                                 <User className="w-4 h-4 text-primary" />
@@ -378,7 +378,7 @@ export default function MarketRadarPage() {
                     </p>
                     <Button
                         onClick={conductResearch}
-                        className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:bg-primary/90"
+                        className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:bg-primary/90"
                     >
                         <Brain className="w-4 h-4 mr-2" />
                         Start Deep Research
@@ -390,7 +390,7 @@ export default function MarketRadarPage() {
             {research && (
                 <div className="max-w-7xl mx-auto space-y-8">
                     {/* Research Summary */}
-                    <Card className="p-6 bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)]">
+                    <Card className="p-6 bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)]">
                         <h2 className="text-xl font-display font-bold text-foreground flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                                 <Sparkles className="w-5 h-5 text-primary" />

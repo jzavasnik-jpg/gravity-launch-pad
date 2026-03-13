@@ -232,7 +232,7 @@ export default function AvatarDetailPage() {
           </div>
           <Button
             onClick={() => router.push('/veritas/strategy')}
-            className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(79,209,255,0.6)] hover:bg-primary/90"
+            className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.6)] hover:bg-primary/90"
           >
             Next: Strategy <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
@@ -243,7 +243,7 @@ export default function AvatarDetailPage() {
         {/* TOP ROW: Avatar Card (Left) + Dreams/Challenges/Triggers (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left: Hero Card */}
-          <Card className="overflow-hidden bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
+          <Card className="overflow-hidden bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
             {/* Photo Section */}
             <div className="relative aspect-[16/9]">
               {avatar.photo_url ? (
@@ -344,7 +344,7 @@ export default function AvatarDetailPage() {
           <div className="space-y-5">
             {/* Dreams & Aspirations */}
             {avatar.dreams && avatar.dreams.length > 0 && (
-              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]">
+              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-primary" />
@@ -366,7 +366,7 @@ export default function AvatarDetailPage() {
 
             {/* Daily Challenges */}
             {avatar.daily_challenges && avatar.daily_challenges.length > 0 && (
-              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]">
+              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 text-primary" />
@@ -388,7 +388,7 @@ export default function AvatarDetailPage() {
 
             {/* Buying Triggers */}
             {avatar.buying_triggers && avatar.buying_triggers.length > 0 && (
-              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]">
+              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <ShoppingCart className="w-4 h-4 text-primary" />
@@ -410,7 +410,7 @@ export default function AvatarDetailPage() {
 
             {/* Marketing Statements (if any) */}
             {marketingStatements.length > 0 && (
-              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]">
+              <Card className="p-5 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Quote className="w-4 h-4 text-primary" />
@@ -441,7 +441,7 @@ export default function AvatarDetailPage() {
         </div>
 
         {/* BOTTOM ROW: Pain Points Matrix */}
-        <Card className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]">
+        <Card className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]">
           <button
             onClick={() => setExpandedPainPoints(!expandedPainPoints)}
             className="flex items-center justify-between w-full text-left group mb-4"

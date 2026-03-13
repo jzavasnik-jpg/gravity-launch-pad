@@ -16,8 +16,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Launch Pad by Gravity | AI-Powered Market Validation",
-    template: "%s | Launch Pad by Gravity",
+    default: "Launch by Gravity | AI-Powered Market Validation",
+    template: "%s | Launch by Gravity",
   },
   description:
     "Transform your product ideas into market-ready launches with AI-powered customer research, content creation, and viral marketing strategies.",
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://launchpad.gravity.com",
-    siteName: "Launch Pad by Gravity",
-    title: "Launch Pad by Gravity | AI-Powered Market Validation",
+    url: "https://launch.gravity.com",
+    siteName: "Launch by Gravity",
+    title: "Launch by Gravity | AI-Powered Market Validation",
     description:
       "Transform your product ideas into market-ready launches with AI-powered customer research, content creation, and viral marketing strategies.",
     images: [
@@ -44,13 +44,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Launch Pad by Gravity",
+        alt: "Launch by Gravity",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Launch Pad by Gravity",
+    title: "Launch by Gravity",
     description: "AI-Powered Market Validation for Product Launchers",
     images: ["/og-twitter.png"],
   },
@@ -66,7 +66,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {/* Inline theme init to prevent FOUC — dark by default, reads localStorage */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('launch-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}else if(t==='system'){if(!window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light')}}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >

@@ -182,7 +182,7 @@ export function ScriptDoctorPanel({
 
             {/* Regenerate Button - Cyan solid, NO gradient */}
             <Button
-              className="w-full bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(79,209,255,0.6)] hover:bg-primary/90"
+              className="w-full bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.6)] hover:bg-primary/90"
               onClick={onRegenerate}
               disabled={isProcessing}
             >

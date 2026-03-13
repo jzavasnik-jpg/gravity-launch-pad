@@ -44,7 +44,7 @@ interface ICPContextPanelProps {
  * Shows Core Desire, Primary Emotion (Six S), and key ICP answers to help
  * users understand how their Market Radar analysis connects to their ICP.
  * 
- * Design: Follows CLAUDE.md floating card effect with cyan-only accents.
+ * Design: Follows CLAUDE.md floating card effect with monochrome accents.
  */
 export function ICPContextPanel({ 
   expanded = false, 
@@ -88,7 +88,7 @@ export function ICPContextPanel({
     return (
       <Card className={cn(
         "p-3 bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl",
-        "shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]",
+        "shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]",
         className
       )}>
         <div className="flex items-center gap-3">
@@ -134,7 +134,7 @@ export function ICPContextPanel({
   return (
     <Card className={cn(
       "bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden",
-      "shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]",
+      "shadow-[0_0_40px_-8px_rgba(255,255,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]",
       className
     )}>
       {/* Header */}

@@ -20,14 +20,14 @@ export const AuthSync = () => {
         console.log('[AuthSync] Auth state:', { isAuthenticated, hasUser: !!user, hasRecord: !!userRecord });
 
         if (isAuthenticated && user) {
-            console.log('[AuthSync] Syncing user to AppContext:', user.uid);
+            console.log('[AuthSync] Syncing user to AppContext:', user.id);
 
-            // Use userRecord if available, otherwise fallback to Firebase user data
-            const userName = userRecord?.name || user.displayName || user.email?.split('@')[0] || 'User';
+            // Use userRecord if available, otherwise fallback to Supabase user data
+            const userName = userRecord?.name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
 
             // Sync user info to AppContext
             setUserInfo(
-                user.uid,
+                user.id,
                 userName,
                 user.email || undefined
             );

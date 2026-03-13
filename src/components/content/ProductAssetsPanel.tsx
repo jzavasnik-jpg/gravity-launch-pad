@@ -245,7 +245,7 @@ export function ProductAssetsPanel() {
                                     "group relative bg-muted rounded-lg overflow-hidden border transition-all cursor-grab active:cursor-grabbing",
                                     draggingAssetId === asset.id
                                         ? "border-primary/50 opacity-50 scale-95"
-                                        : "border-border hover:border-primary/30 hover:shadow-[0_0_20px_-5px_rgba(79,209,255,0.3)]"
+                                        : "border-border hover:border-primary/30 hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                                 )}
                             >
                                 {asset.thumbnail_url || asset.url ? (

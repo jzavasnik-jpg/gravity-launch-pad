@@ -148,7 +148,7 @@ export function buildPaletteFromColors(extractedColors: ExtractedColor[]): Color
     if (extractedColors.length === 0) {
         // Default fallback palette
         return {
-            primary: '#4FD1FF',
+            primary: 'rgba(255,255,255,0.90)',
             secondary: '#6366F1',
             accent: '#10B981',
             background: '#030308',
@@ -170,7 +170,7 @@ export function buildPaletteFromColors(extractedColors: ExtractedColor[]): Color
         return getVibrancy(b.rgb) - getVibrancy(a.rgb);
     });
 
-    const primary = sortedColors[0]?.hex || '#4FD1FF';
+    const primary = sortedColors[0]?.hex || 'rgba(255,255,255,0.90)';
     const secondary = sortedColors[1]?.hex || sortedColors[0]?.hex || '#6366F1';
 
     // Find a good accent color (different from primary/secondary)

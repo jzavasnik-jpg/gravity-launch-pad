@@ -125,9 +125,12 @@ export const ProblemAgitateSection = () => {
 
             const userPrompt = `Pain Point: ${pain}\nConsequence: ${consequence}`;
 
-            const res = await fetch('http://localhost:3001/api/generate-copy', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({ systemPrompt, userPrompt })
             });
 

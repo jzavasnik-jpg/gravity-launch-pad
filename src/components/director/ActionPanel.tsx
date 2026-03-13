@@ -125,7 +125,7 @@ export function ActionPanel() {
                         )}
 
                         <div className="pt-4 border-t border-border">
-                            <Button className="w-full bg-gradient-to-r from-primary to-indigo-500 hover:opacity-90 text-primary-foreground border-0 shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]">
+                            <Button className="w-full bg-gradient-to-r from-primary to-indigo-500 hover:opacity-90 text-primary-foreground border-0 shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]">
                                 <Wand2 className="w-4 h-4 mr-2" />
                                 Render Scene
                             </Button>

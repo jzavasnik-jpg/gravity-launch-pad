@@ -49,13 +49,13 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
     const pathname = usePathname();
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, userRecord } = useAuth();
     const { appState } = useApp();
     const [collapsed, setCollapsed] = React.useState(false);
 
     // Navigation items
     const navItems = [
-        { path: '/', label: 'Home', icon: Home },
+        { path: '/home', label: 'Home', icon: Home },
         { path: '/icp/review', label: 'ICP', icon: FileText },
         { path: '/dashboard', label: 'Avatars', icon: User },
         { path: '/product-assets', label: 'Asset Library', icon: FolderOpen },
@@ -88,7 +88,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     </Button>
                     <div className="flex items-center gap-2">
                         <span className="text-xl font-bold tracking-tight text-primary font-display">G</span>
-                        <span className="text-lg tracking-tight text-foreground font-display">Launch Pad</span>
+                        <span className="text-lg tracking-tight text-foreground font-display">Launch</span>
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="flex items-center gap-2">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src={user?.photoURL || undefined} />
+                                    <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || userRecord?.avatar_url || undefined} />
                                     <AvatarFallback className="bg-primary/10 text-primary">
                                         {user?.email?.charAt(0).toUpperCase() || 'U'}
                                     </AvatarFallback>
@@ -171,8 +171,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         })}
                     </nav>
 
-                    {/* Sessions Link at Bottom */}
-                    <div className="px-3 mt-auto">
+                    {/* Sessions Link */}
+                    <div className="px-3 mt-4">
                         <Link
                             href="/sessions"
                             className={cn(
@@ -193,6 +193,57 @@ export default function AppLayout({ children }: AppLayoutProps) {
                                 </span>
                             )}
                         </Link>
+                    </div>
+
+                    {/* User Section at Bottom */}
+                    <div className={cn("mt-auto px-3 pt-4 border-t border-border", collapsed && "flex justify-center")}>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className={cn(
+                                    "flex items-center gap-3 p-2 rounded-lg border border-border/50 bg-card/50 cursor-pointer hover:bg-muted transition-colors",
+                                    collapsed && "border-none bg-transparent p-0"
+                                )}>
+                                    <Avatar className="w-8 h-8 border border-border/50">
+                                        <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || userRecord?.avatar_url || undefined} />
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                                            {user?.email?.charAt(0).toUpperCase() || 'U'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    {!collapsed && (
+                                        <div className="flex flex-col overflow-hidden text-left flex-1">
+                                            <span className="text-xs font-medium text-foreground truncate">
+                                                {appState.userName || user?.email?.split('@')[0] || 'User'}
+                                            </span>
+                                            <span className="text-[10px] text-muted-foreground truncate">
+                                                {user?.email || ''}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {collapsed && (
+                                        <div className="absolute left-14 bg-popover text-popover-foreground text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border shadow-lg">
+                                            {user?.email || 'User'}
+                                        </div>
+                                    )}
+                                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" side="right" className="w-56">
+                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => router.push('/profile')}>
+                                    <User className="mr-2 h-4 w-4" />
+                                    Profile
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.push('/settings')}>
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    Settings
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Log out
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </aside>
 

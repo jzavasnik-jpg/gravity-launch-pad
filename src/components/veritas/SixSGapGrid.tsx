@@ -21,7 +21,7 @@ interface SixSGapCardProps {
  * 
  * Features:
  * - Highlights if this matches the user's ICP selection
- * - Floating card effect with cyan glow (per CLAUDE.md)
+ * - Floating card effect with monochrome glow (per CLAUDE.md)
  * - Expandable to show evidence and guidance
  * - Priority-based coloring
  */
@@ -65,12 +65,12 @@ export function SixSGapCard({
           // Base floating card styling
           "p-4 bg-card/85 backdrop-blur-xl border rounded-xl cursor-pointer transition-all duration-300",
           // Glow effect
-          "shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)]",
+          "shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)]",
           // Hover states
-          "hover:-translate-y-1 hover:shadow-[0_0_40px_-8px_rgba(79,209,255,0.4)]",
+          "hover:-translate-y-1 hover:shadow-[0_0_40px_-8px_rgba(255,255,255,0.4)]",
           // Expanded state
           isExpanded
-            ? "border-primary/40 shadow-[0_0_40px_-8px_rgba(79,209,255,0.4)]"
+            ? "border-primary/40 shadow-[0_0_40px_-8px_rgba(255,255,255,0.4)]"
             : "border-primary/25 hover:border-primary/40",
           // ICP Selection highlight
           isICPSelection && "ring-2 ring-primary ring-offset-2 ring-offset-background"

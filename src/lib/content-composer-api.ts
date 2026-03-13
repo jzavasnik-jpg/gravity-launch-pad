@@ -1,7 +1,10 @@
 import { Hook, Scene, SceneLabel } from '@/store/projectStore';
 import { Temperature, TEMPERATURE_DEFINITIONS } from '@/lib/six-s-constants';
 
-const API_BASE = 'http://localhost:3001';
+// Use Next.js API routes for OpenAI and Supabase Edge Functions for Gemini
+const API_BASE = '';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Helper to format avatar data (arrays, objects, or strings) into readable text
 function formatAvatarData(data: any): string {
@@ -739,10 +742,10 @@ export async function generateScriptOnly(params: GenerateContentParams, hookText
     }
 }
 
-// Helper for OpenAI calls - uses backend proxy for security
+// Helper for OpenAI calls - uses Next.js API route for security
 // Default to gpt-4o-mini for cost efficiency (90% cheaper than gpt-4o)
 async function callOpenAI(prompt: string, model: string = 'gpt-4o-mini'): Promise<any> {
-    const response = await fetch(`${API_BASE}/api/openai/chat`, {
+    const response = await fetch(`${API_BASE}/api/ai/openai`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -760,20 +763,21 @@ async function callOpenAI(prompt: string, model: string = 'gpt-4o-mini'): Promis
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Backend API error: ${errorData.error || response.statusText}`);
+        throw new Error(`API error: ${errorData.error || response.statusText}`);
     }
 
     const data = await response.json();
     return JSON.parse(data.choices[0].message.content || '{}');
 }
 
-// Helper for Gemini deep thinking - uses Gemini 2.5 Flash for complex reasoning
+// Helper for Gemini deep thinking - uses Supabase Edge Function
 // 80% cheaper than GPT-4o with excellent quality for script generation
 async function callGeminiDeep(systemPrompt: string, userPrompt: string, thinkingBudget: 'low' | 'medium' | 'high' = 'medium'): Promise<any> {
-    const response = await fetch(`${API_BASE}/api/generate-deep`, {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
             systemPrompt,

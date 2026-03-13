@@ -115,7 +115,7 @@ export default function LandingPadEditorPage() {
                     Full Preview
                 </Button>
                 <Button
-                    className="bg-gradient-to-r from-primary to-cyan-400 text-black font-bold shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                    className="bg-gradient-to-r from-primary to-primary text-black font-bold shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                     size="sm"
                 >
                     <Download className="w-4 h-4 mr-2" />
@@ -219,7 +219,7 @@ export default function LandingPadEditorPage() {
                             </div>
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-gradient-to-r from-primary to-cyan-400 transition-all duration-500"
+                                    className="h-full bg-gradient-to-r from-primary to-primary transition-all duration-500"
                                     style={{ width: `${(completedSections.length / SECTIONS.length) * 100}%` }}
                                 />
                             </div>

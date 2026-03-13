@@ -1,11 +1,14 @@
 /**
- * YouTube API Client - Uses Backend Proxy
+ * YouTube API Client - Uses Supabase Edge Functions
  *
- * All YouTube API calls go through our backend server which uses the app's
- * API key. This means users don't need to authenticate - it just works.
+ * All YouTube API calls go through Supabase Edge Functions which use the app's
+ * service account stored in Supabase Vault. This means users don't need to
+ * authenticate - it just works.
  */
 
-const BACKEND_URL = 'http://localhost:3001';
+// Supabase Edge Function URL for YouTube operations
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export interface YouTubeVideo {
     id: string;
@@ -32,9 +35,12 @@ export interface YouTubeComment {
  */
 export async function searchVideos(query: string, limit: number = 5): Promise<YouTubeVideo[]> {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube-search`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            },
             body: JSON.stringify({ query, maxResults: limit }),
         });
 
@@ -59,9 +65,12 @@ export async function searchVideos(query: string, limit: number = 5): Promise<Yo
  */
 export async function getVideoComments(videoId: string, limit: number = 20): Promise<YouTubeComment[]> {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/youtube/comments`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube-comments`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            },
             body: JSON.stringify({ videoId, maxResults: limit }),
         });
 

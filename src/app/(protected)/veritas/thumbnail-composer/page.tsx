@@ -149,7 +149,7 @@ export default function ThumbnailComposerPage() {
           <p className="text-muted-foreground">Please create a script in the Content Composer first.</p>
           <Button
             onClick={() => router.push('/veritas/content-composer')}
-            className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+            className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
           >
             Go to Content Composer
           </Button>
@@ -213,7 +213,7 @@ export default function ThumbnailComposerPage() {
                     className={cn(
                       "relative flex-shrink-0 w-24 aspect-[9/16] rounded-lg overflow-hidden border-2 transition-all",
                       isSelected
-                        ? "border-primary shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                        ? "border-primary shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                         : "border-transparent hover:border-primary/50"
                     )}
                   >
@@ -285,7 +285,7 @@ export default function ThumbnailComposerPage() {
       {/* Empty State for no scene images */}
       {scenesWithImages.length === 0 && !isAnalyzing && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10">
-          <div className="bg-card/95 backdrop-blur-xl border border-primary/25 rounded-xl px-6 py-4 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)] flex items-center gap-4">
+          <div className="bg-card/95 backdrop-blur-xl border border-primary/25 rounded-xl px-6 py-4 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)] flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Film className="w-5 h-5 text-primary" />
             </div>
@@ -295,7 +295,7 @@ export default function ThumbnailComposerPage() {
             </div>
             <Button
               onClick={() => router.push('/veritas/directors-cut')}
-              className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+              className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go to Director's Cut

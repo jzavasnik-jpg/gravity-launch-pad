@@ -25,7 +25,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 export function ThemeProvider({
     children,
     defaultTheme = "dark",
-    storageKey = "launch-pad-theme",
+    storageKey = "launch-theme",
 }: ThemeProviderProps) {
     const [theme, setTheme] = useState<Theme>(defaultTheme)
     const [mounted, setMounted] = useState(false)

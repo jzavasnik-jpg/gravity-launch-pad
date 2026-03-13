@@ -33,7 +33,7 @@ export function PhonePreview({
       {/* Phone Frame - matches ThumbnailEditPage pattern */}
       <div className="relative">
         {/* Smartphone Frame */}
-        <div className="w-[300px] aspect-[9/16] bg-background rounded-[2.5rem] border-[6px] border-muted overflow-hidden relative shadow-[0_0_60px_-15px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
+        <div className="w-[300px] aspect-[9/16] bg-background rounded-[2.5rem] border-[6px] border-muted overflow-hidden relative shadow-[0_0_60px_-15px_rgba(255,255,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
           {/* Notch */}
           <div className="absolute top-0 left-0 right-0 h-7 bg-background z-20 flex justify-center">
             <div className="w-28 h-5 bg-muted rounded-b-2xl" />
@@ -131,7 +131,7 @@ export function PhonePreview({
           <Button
             variant="default"
             size="icon"
-            className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90 shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+            className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90 shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
             onClick={onTogglePlay}
           >
             {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}

@@ -371,7 +371,7 @@ export default function ThumbnailEditPage() {
         setIsRefining(true);
         try {
             const textToUse = textOverride || concept.hook_text || "HOOK";
-            const response = await fetch('http://localhost:3001/api/generate-transparent-text', {
+            const response = await fetch('/api/generate-transparent-text', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -735,7 +735,7 @@ export default function ThumbnailEditPage() {
                 };
             }).filter(Boolean);
 
-            const response = await fetch('http://localhost:3001/api/composite-images', {
+            const response = await fetch('/api/composite-images', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -917,7 +917,7 @@ export default function ThumbnailEditPage() {
                 // Generate Hook in parallel or sequence
                 let newHooks = [];
                 try {
-                    const hookRes = await fetch('http://localhost:3001/api/generate-transparent-text', {
+                    const hookRes = await fetch('/api/generate-transparent-text', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -961,7 +961,7 @@ export default function ThumbnailEditPage() {
             const hook = hooks.find(h => h.id === hookId);
             if (!hook) return;
 
-            const response = await fetch('http://localhost:3001/api/generate-transparent-text', {
+            const response = await fetch('/api/generate-transparent-text', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

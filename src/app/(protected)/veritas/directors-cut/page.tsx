@@ -261,7 +261,7 @@ export default function DirectorsCutPage() {
 
         {/* Next Step Button */}
         <Button
-          className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(79,209,255,0.6)] hover:bg-primary/90"
+          className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.6)] hover:bg-primary/90"
           onClick={handleNext}
           disabled={scenesWithImages === 0}
         >
@@ -372,7 +372,7 @@ export default function DirectorsCutPage() {
                   Go back to Content Composer to create your script scenes first.
                 </p>
                 <Button
-                  className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                  className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                   onClick={() => router.push('/veritas/content-composer')}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />

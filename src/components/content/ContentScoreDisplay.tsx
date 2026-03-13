@@ -65,7 +65,7 @@ export function ContentScoreDisplay({
 
   const getScoreGradient = (score: number) => {
     if (score >= 90) return "from-green-400 to-emerald-500";
-    if (score >= 80) return "from-blue-400 to-cyan-500";
+    if (score >= 80) return "from-primary to-primary";
     if (score >= 70) return "from-yellow-400 to-amber-500";
     return "from-orange-400 to-red-500";
   };

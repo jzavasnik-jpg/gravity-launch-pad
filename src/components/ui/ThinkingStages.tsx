@@ -84,7 +84,7 @@ export function ThinkingStages({
             </div>
 
             {/* Progress Steps */}
-            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-5 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)]">
+            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-5 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)]">
                 <div className="space-y-2">
                     {stages.map((stage, index) => {
                         const isCompleted = completedStages.includes(stage.id);

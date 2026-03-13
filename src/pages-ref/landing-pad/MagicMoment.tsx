@@ -130,9 +130,12 @@ export function MagicMoment() {
 
         // Try to call AI with rich ICP context
         try {
-            const res = await fetch('http://localhost:3001/api/generate-copy', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({
                     systemPrompt: `Generate high-converting hero section copy for a landing page.
 
@@ -186,9 +189,12 @@ Solution Statement: ${marketingStatements?.solution_statement || 'not specified'
         const mainPain = painPoints[0] || "Struggling to get results";
 
         try {
-            const res = await fetch('http://localhost:3001/api/generate-copy', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({
                     systemPrompt: `Generate problem-agitate copy that twists the knife. Return JSON: { "headline": "string", "body": "string with HTML <br> tags" }. Do NOT include any specific persona or avatar names in the copy.`,
                     userPrompt: `Pain point: ${mainPain}, Product: ${data.productName}`
@@ -249,9 +255,12 @@ Solution Statement: ${marketingStatements?.solution_statement || 'not specified'
 
     const generateTransformationSection = async (data: SetupData, painPoints: string[]) => {
         try {
-            const res = await fetch('http://localhost:3001/api/generate-copy', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({
                     systemPrompt: `Generate before/after transformation copy. Return JSON: { "headline": "string", "beforeList": ["string",...], "afterList": ["string",...], "bridgeText": "string" }. Do NOT include any specific persona or avatar names in the copy.`,
                     userPrompt: `Product: ${data.productName}, Pain points: ${painPoints.join(", ")}`
@@ -301,9 +310,12 @@ Solution Statement: ${marketingStatements?.solution_statement || 'not specified'
 
         // Try AI-generated value stack based on ICP context
         try {
-            const res = await fetch('http://localhost:3001/api/generate-copy', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({
                     systemPrompt: `You are a digital product pricing strategist. Generate a compelling value stack for a landing page.
 

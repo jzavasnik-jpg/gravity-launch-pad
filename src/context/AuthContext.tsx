@@ -5,6 +5,16 @@ import { supabase, User, Session } from '@/lib/supabase';
 import type { UserRecord } from '@/lib/auth-service';
 import { getUserRecord } from '@/lib/auth-service';
 
+// Timeout wrapper to prevent hanging promises from freezing the UI
+const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> => {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`Auth timeout after ${ms}ms`)), ms)
+  );
+  return Promise.race([promise, timeout]);
+};
+
+const AUTH_TIMEOUT_MS = 3000; // 3 seconds max for auth initialization
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -46,26 +56,101 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     console.log('[AuthContext] Setting up Supabase auth listener');
 
-    // Get initial session
+    // Track if this effect instance is still active (handles React Strict Mode double-mount)
+    let isActive = true;
+
+    // With @supabase/ssr, sessions are stored in cookies, not localStorage
+    // We rely on getSession() to read from cookies properly
+
+    // Get initial auth state from cookies via getSession()
     const initializeAuth = async () => {
       try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log('[AuthContext] Checking for existing session...');
 
-        if (initialSession?.user) {
-          console.log('[AuthContext] Initial session found:', initialSession.user.id);
-          setSession(initialSession);
-          setUser(initialSession.user);
+        // getSession() reads from cookies with @supabase/ssr
+        const { data: { session: cachedSession }, error: sessionError } = await supabase.auth.getSession();
+        console.log('[AuthContext] getSession result:', { hasSession: !!cachedSession, error: sessionError?.message });
 
-          // Fetch user record from database
-          const record = await getUserRecord(initialSession.user.id);
-          console.log('[AuthContext] User record:', record);
-          setUserRecord(record);
+        if (!isActive) return;
+
+        // Handle rate limit error from getSession
+        if (sessionError?.status === 429 || sessionError?.message?.includes('rate limit')) {
+          console.warn('[AuthContext] getSession rate limited, retrying in 2 seconds...');
+          setTimeout(() => {
+            if (isActive) initializeAuth();
+          }, 2000);
+          return;
         }
 
-        setLoading(false);
-      } catch (error) {
+        if (cachedSession?.user) {
+          console.log('[AuthContext] Found cached session for:', cachedSession.user.id);
+          // Immediately set user from cached session (fast path)
+          setSession(cachedSession);
+          setUser(cachedSession.user);
+          setLoading(false);
+
+          // Background validation is informational only - never clear auth based on it
+          // The cached session from getSession() is authoritative (set by server cookies)
+          supabase.auth.getUser().then(({ data: { user: validatedUser }, error }) => {
+            if (!isActive) return;
+            if (error) {
+              // Log but don't clear auth - cached session is valid
+              console.log('[AuthContext] Background getUser check:', error.message);
+            } else if (validatedUser) {
+              console.log('[AuthContext] Session validated for:', validatedUser.id);
+            }
+          });
+
+          // Fetch user record
+          try {
+            const record = await getUserRecord(cachedSession.user.id);
+            if (isActive) {
+              setUserRecord(record);
+            }
+          } catch (recordError) {
+            console.warn('[AuthContext] Failed to fetch user record:', recordError);
+          }
+          return;
+        }
+
+        // No cached session, try getUser() as fallback
+        console.log('[AuthContext] No cached session, trying getUser...');
+        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+
+        if (!isActive) return;
+
+        if (currentUser) {
+          console.log('[AuthContext] User found via getUser:', currentUser.id);
+          setUser(currentUser);
+
+          try {
+            const record = await getUserRecord(currentUser.id);
+            if (isActive) setUserRecord(record);
+          } catch (e) {
+            console.warn('[AuthContext] Failed to fetch user record:', e);
+          }
+        } else {
+          console.log('[AuthContext] No user found');
+        }
+
+        if (isActive) setLoading(false);
+      } catch (error: any) {
+        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+          console.log('[AuthContext] Request aborted, will retry');
+          return;
+        }
+
+        // Handle rate limiting with retry
+        if (error?.status === 429 || error?.message?.includes('rate limit')) {
+          console.warn('[AuthContext] Rate limited, retrying in 2 seconds...');
+          setTimeout(() => {
+            if (isActive) initializeAuth();
+          }, 2000);
+          return;
+        }
+
         console.error('[AuthContext] Error initializing auth:', error);
-        setLoading(false);
+        if (isActive) setLoading(false);
       }
     };
 
@@ -74,28 +159,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Listen to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        if (!isActive) return; // Don't update state if unmounted
+
         console.log('[AuthContext] Auth state changed:', event, currentSession?.user?.id);
 
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-
-        if (currentSession?.user) {
-          // Fetch user record from database
-          console.log('[AuthContext] Fetching user record for:', currentSession.user.id);
-          const record = await getUserRecord(currentSession.user.id);
-          console.log('[AuthContext] User record:', record);
-          setUserRecord(record);
-        } else {
+        // Only clear auth on explicit SIGNED_OUT event
+        // Other events with null session should not clear existing auth
+        if (event === 'SIGNED_OUT') {
+          console.log('[AuthContext] User signed out, clearing auth');
+          setSession(null);
+          setUser(null);
           setUserRecord(null);
+          setLoading(false);
+          return;
         }
 
-        setLoading(false);
+        // For other events, only update if we have a valid session
+        if (currentSession?.user) {
+          setSession(currentSession);
+          setUser(currentSession.user);
+
+          // Fetch user record from database
+          console.log('[AuthContext] Fetching user record for:', currentSession.user.id);
+          try {
+            const record = await getUserRecord(currentSession.user.id);
+            if (isActive) {
+              console.log('[AuthContext] User record:', record);
+              setUserRecord(record);
+            }
+          } catch (err) {
+            console.warn('[AuthContext] Failed to fetch user record:', err);
+          }
+        }
+
+        if (isActive) {
+          setLoading(false);
+        }
       }
     );
 
     // Cleanup subscription on unmount
     return () => {
       console.log('[AuthContext] Cleaning up auth listener');
+      isActive = false; // Prevent state updates after unmount
       subscription.unsubscribe();
     };
   }, []);

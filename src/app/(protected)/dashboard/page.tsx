@@ -10,11 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AvatarGalleryCard, PLACEHOLDER_AVATARS, AvatarCardData } from '@/components/AvatarGalleryCard';
 import { CircularProgress } from '@/components/CircularProgress';
 import {
-  getAllAvatarsBySessionId,
-  getLatestICPSession,
-  getAllUserSessions
-} from '@/lib/database-service';
-import {
   Sparkles,
   Target,
   TrendingUp,
@@ -28,44 +23,76 @@ import {
 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, userRecord, isAuthenticated } = useAuth();
+  const { user, userRecord, session } = useAuth();
   const { appState } = useApp();
   const router = useRouter();
   const [latestSession, setLatestSession] = useState<any>(null);
   const [avatars, setAvatars] = useState<AvatarCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   useEffect(() => {
     const loadDashboardData = async () => {
-      if (!user) return;
+      // Prevent multiple fetches
+      if (hasFetched) return;
+
+      // Use session from AuthContext instead of calling getSession() directly
+      const token = session?.access_token;
+      if (!token) {
+        console.log('[Dashboard] No auth token from context, waiting...');
+        // Don't set loading false - let the effect re-run when session arrives
+        return;
+      }
+
+      setHasFetched(true);
 
       try {
-        const session = await getLatestICPSession(user.uid);
-        setLatestSession(session);
-
-        if (session) {
-          const sessionAvatars = await getAllAvatarsBySessionId(session.id);
-          if (sessionAvatars && sessionAvatars.length > 0) {
-            const avatarData: AvatarCardData[] = sessionAvatars.map(avatar => ({
-              id: avatar.id,
-              photo_url: avatar.photo_url || "",
-              name: avatar.name,
-              age: avatar.age || 0,
-              gender: avatar.gender || "",
-              occupation: avatar.occupation || "",
-              topInsight: (avatar.pain_points && Array.isArray(avatar.pain_points) && avatar.pain_points[0]) ||
-                (avatar.dreams && Array.isArray(avatar.dreams) && avatar.dreams[0]) ||
-                "No insights available",
-              pain_points: avatar.pain_points || [],
-              daily_challenges: avatar.daily_challenges || [],
-              dreams: avatar.dreams || [],
-              buying_triggers: avatar.buying_triggers || [],
-              pain_points_matrix: avatar.pain_points_matrix || {},
-              six_s_scores: avatar.six_s_scores || {},
-              isPlaceholder: false,
-            }));
-            setAvatars(avatarData);
+        // Fetch dashboard data via API (bypasses RLS)
+        const response = await fetch('/api/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
+        });
+
+        if (!response.ok) {
+          // Handle 401/429 with retry - session might not be ready yet or rate limited
+          if ((response.status === 401 || response.status === 429) && retryCount < MAX_RETRIES) {
+            const delay = response.status === 429 ? 2000 : (retryCount + 1) * 1000;
+            console.log(`[Dashboard] Got ${response.status}, retrying in ${delay}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+            setHasFetched(false); // Allow retry
+            setTimeout(() => {
+              setRetryCount(prev => prev + 1);
+            }, delay);
+            return;
+          }
+          throw new Error('Failed to fetch dashboard data');
+        }
+
+        const data = await response.json();
+        setLatestSession(data.session);
+
+        if (data.avatars && data.avatars.length > 0) {
+          const avatarData: AvatarCardData[] = data.avatars.map((avatar: any) => ({
+            id: avatar.id,
+            photo_url: avatar.photo_url || "",
+            name: avatar.name,
+            age: avatar.age || 0,
+            gender: avatar.gender || "",
+            occupation: avatar.occupation || "",
+            topInsight: (avatar.pain_points && Array.isArray(avatar.pain_points) && avatar.pain_points[0]) ||
+              (avatar.dreams && Array.isArray(avatar.dreams) && avatar.dreams[0]) ||
+              "No insights available",
+            pain_points: avatar.pain_points || [],
+            daily_challenges: avatar.daily_challenges || [],
+            dreams: avatar.dreams || [],
+            buying_triggers: avatar.buying_triggers || [],
+            pain_points_matrix: avatar.pain_points_matrix || {},
+            six_s_scores: avatar.six_s_scores || {},
+            isPlaceholder: false,
+          }));
+          setAvatars(avatarData);
         }
       } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -75,7 +102,7 @@ export default function DashboardPage() {
     };
 
     loadDashboardData();
-  }, [user]);
+  }, [hasFetched, session, retryCount]);
 
   const quickActions = [
     {
@@ -83,42 +110,42 @@ export default function DashboardPage() {
       description: 'Discover market trends and opportunities',
       icon: BarChart3,
       href: '/veritas/market-radar',
-      color: 'text-blue-400',
+      color: 'text-primary',
     },
     {
       title: 'Strategy',
       description: 'Build your go-to-market strategy',
       icon: Target,
       href: '/veritas/strategy',
-      color: 'text-green-400',
+      color: 'text-muted-foreground',
     },
     {
       title: 'Content Composer',
       description: 'Create viral content with AI',
       icon: FileText,
       href: '/veritas/content-composer',
-      color: 'text-purple-400',
+      color: 'text-muted-foreground',
     },
     {
       title: 'Thumbnail Studio',
       description: 'Design click-worthy thumbnails',
       icon: Palette,
       href: '/veritas/thumbnail-composer',
-      color: 'text-orange-400',
+      color: 'text-muted-foreground',
     },
     {
       title: "Director's Cut",
       description: 'Build your video storyboard',
       icon: Video,
       href: '/veritas/directors-cut',
-      color: 'text-pink-400',
+      color: 'text-muted-foreground',
     },
     {
       title: 'Landing Pad',
       description: 'Generate high-converting landing pages',
       icon: Rocket,
       href: '/landing-pad',
-      color: 'text-cyan-400',
+      color: 'text-primary',
     },
   ];
 
@@ -220,7 +247,7 @@ export default function DashboardPage() {
           ) : avatars.length > 0 ? (
             <AvatarGalleryCard
               avatars={avatars.slice(0, 3)}
-              onViewDetails={(avatar) => router.push('/icp/review')}
+              onViewDetails={(avatar) => router.push(`/avatar/${avatar.id}`)}
             />
           ) : (
             <div className="text-center py-12">

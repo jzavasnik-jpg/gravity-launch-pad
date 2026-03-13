@@ -93,7 +93,7 @@ const HookLayer = ({ hook, canvasRef, isResizing, onUpdate, onSelect, isSelected
                     duration: 0
                 }}
                 style={{
-                    border: (isSelected && !readOnly) ? '2px solid #a855f7' : '2px solid transparent',
+                    border: (isSelected && !readOnly) ? '2px solid hsl(var(--ring))' : '2px solid transparent',
                     borderRadius: '8px',
                     padding: '4px',
                     pointerEvents: 'auto',
@@ -1419,13 +1419,13 @@ export default function ThumbnailEditPage() {
                         </div>
                         <div className="h-full bg-white text-black overflow-hidden flex flex-col">
                             {/* Status Bar */}
-                            <div className="h-12 bg-[#0f172a] text-white flex items-end justify-between px-6 pb-2 text-xs font-medium">
+                            <div className="h-12 bg-background text-white flex items-end justify-between px-6 pb-2 text-xs font-medium">
                                 <span>9:41</span>
                                 <span>5G 100%</span>
                             </div>
 
                             {/* Scrollable Feed Area */}
-                            <div className="flex-1 overflow-y-auto hide-scrollbar bg-[#f3f2ef]">
+                            <div className="flex-1 overflow-y-auto hide-scrollbar bg-card">
                                 {/* LinkedIn App Header */}
                                 <div className="bg-white px-4 py-2 flex items-center gap-3 border-b border-zinc-200 sticky top-0 z-30">
                                     <div className="w-8 h-8 rounded-full bg-zinc-200 flex-shrink-0 overflow-hidden">

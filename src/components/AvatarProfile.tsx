@@ -329,7 +329,7 @@ export const AvatarProfile: React.FC<AvatarProfileProps> = ({
   const topInsight = getTopInsight();
 
   return (
-    <Card className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2)] space-y-6">
+    <Card className="p-6 bg-card/85 backdrop-blur-xl border-primary/25 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)] space-y-6">
       {/* Header with Avatar - Compact Layout */}
       <div className="flex gap-4">
         <img

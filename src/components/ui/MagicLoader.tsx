@@ -187,7 +187,7 @@ export function MagicLoader({
 export function MagicLoaderOverlay(props: MagicLoaderProps) {
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-card/95 backdrop-blur-xl border border-primary/25 rounded-2xl p-8 shadow-[0_0_60px_-10px_rgba(79,209,255,0.3)] max-w-md">
+      <div className="bg-card/95 backdrop-blur-xl border border-primary/25 rounded-2xl p-8 shadow-[0_0_60px_-10px_rgba(255,255,255,0.3)] max-w-md">
         <MagicLoader {...props} />
       </div>
     </div>

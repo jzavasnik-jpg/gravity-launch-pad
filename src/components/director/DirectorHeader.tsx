@@ -43,7 +43,7 @@ export function DirectorHeader() {
                         <MonitorPlay className="w-4 h-4 mr-2" />
                         Preview Full
                     </Button>
-                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground border-0 shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]">
+                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground border-0 shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]">
                         <Download className="w-4 h-4 mr-2" />
                         Export
                     </Button>

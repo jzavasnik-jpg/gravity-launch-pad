@@ -21,7 +21,7 @@ interface SceneStoryboardCardProps {
   onSelect: () => void;
 }
 
-// Label colors - cyan-only for primary, semantic for others
+// Label colors - monochrome primary, semantic for others
 const labelColors: Record<SceneLabel, string> = {
   'HOOK': 'bg-primary/20 text-primary border-primary/30',
   'PAIN': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
@@ -64,8 +64,8 @@ export function SceneStoryboardCard({
         "bg-card/85 backdrop-blur-xl border rounded-xl overflow-hidden cursor-pointer relative group",
         "transition-all duration-300",
         isActive
-          ? "border-primary/50 shadow-[0_0_50px_-5px_rgba(79,209,255,0.4),0_25px_50px_-15px_rgba(0,0,0,0.9)] ring-2 ring-primary/30"
-          : "border-primary/20 shadow-[0_0_30px_-8px_rgba(79,209,255,0.2),0_20px_40px_-15px_rgba(0,0,0,0.7)] hover:shadow-[0_0_40px_-5px_rgba(79,209,255,0.3)] hover:border-primary/30 hover:-translate-y-0.5"
+          ? "border-primary/50 shadow-[0_0_50px_-5px_rgba(255,255,255,0.4),0_25px_50px_-15px_rgba(0,0,0,0.9)] ring-2 ring-primary/30"
+          : "border-primary/20 shadow-[0_0_30px_-8px_rgba(255,255,255,0.2),0_20px_40px_-15px_rgba(0,0,0,0.7)] hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.3)] hover:border-primary/30 hover:-translate-y-0.5"
       )}
     >
       {/* Thumbnail Preview - 16:9 aspect ratio for compact view */}

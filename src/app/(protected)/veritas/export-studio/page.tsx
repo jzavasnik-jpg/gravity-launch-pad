@@ -184,7 +184,7 @@ export default function ExportStudioPage() {
                     <p className="text-sm font-mono text-foreground">{selectedPlatforms.length}</p>
                 </div>
                 <Button
-                    className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(79,209,255,0.6)] hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.6)] hover:bg-primary/90"
                     onClick={handleExport}
                     disabled={isExporting || selectedPlatforms.length === 0}
                 >
@@ -266,7 +266,7 @@ export default function ExportStudioPage() {
                                 className="space-y-6"
                             >
                                 {/* Video Preview */}
-                                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
+                                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(255,255,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
                                     <div className="aspect-video bg-black relative group">
                                         {scenesWithMedia.length > 0 ? (
                                             <>
@@ -279,7 +279,7 @@ export default function ExportStudioPage() {
                                                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <button
                                                         onClick={() => setIsPlaying(!isPlaying)}
-                                                        className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center shadow-[0_0_30px_rgba(79,209,255,0.5)]"
+                                                        className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.5)]"
                                                     >
                                                         {isPlaying ? (
                                                             <Pause className="w-6 h-6 text-primary-foreground" />
@@ -385,7 +385,7 @@ export default function ExportStudioPage() {
                                 className="space-y-6"
                             >
                                 {/* Thumbnail Preview */}
-                                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
+                                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(255,255,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
                                     <div className="aspect-video bg-black relative">
                                         {bgImage && !bgImage.includes('placehold') ? (
                                             <div className="relative w-full h-full">
@@ -461,7 +461,7 @@ export default function ExportStudioPage() {
                                 className="space-y-6"
                             >
                                 {/* Script Preview */}
-                                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
+                                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(255,255,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
                                     <div className="p-4 border-b border-border flex items-center justify-between">
                                         <h3 className="text-sm font-display font-semibold text-foreground">
                                             Full Script
@@ -519,7 +519,7 @@ export default function ExportStudioPage() {
                                     onClick={() => togglePlatform(platform.id)}
                                     className={`w-full p-4 rounded-xl border flex items-start gap-3 transition-all ${
                                         isSelected
-                                            ? 'bg-primary/10 border-primary/40 shadow-[0_0_20px_-5px_rgba(79,209,255,0.3)]'
+                                            ? 'bg-primary/10 border-primary/40 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]'
                                             : 'bg-card border-border hover:border-primary/20 hover:bg-muted/50'
                                     }`}
                                 >
@@ -580,7 +580,7 @@ export default function ExportStudioPage() {
                     {/* Actions */}
                     <div className="mt-6 space-y-3">
                         <Button
-                            className="w-full bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(79,209,255,0.6)] hover:bg-primary/90 h-12"
+                            className="w-full bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.6)] hover:bg-primary/90 h-12"
                             onClick={handleExport}
                             disabled={isExporting || selectedPlatforms.length === 0}
                         >

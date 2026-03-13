@@ -37,7 +37,7 @@ export function DirectorsCutLayout({
                 <div className={cn(
                     "w-80 flex-none overflow-y-auto",
                     "bg-card/85 backdrop-blur-xl border-l border-primary/25",
-                    "shadow-[inset_4px_0_20px_-10px_rgba(79,209,255,0.15)]"
+                    "shadow-[inset_4px_0_20px_-10px_rgba(255,255,255,0.15)]"
                 )}>
                     {actionPanel}
                 </div>
@@ -47,7 +47,7 @@ export function DirectorsCutLayout({
             <div className={cn(
                 "h-64 flex-none z-40",
                 "bg-card/85 backdrop-blur-xl border-t border-primary/25",
-                "shadow-[inset_0_4px_20px_-10px_rgba(79,209,255,0.15)]"
+                "shadow-[inset_0_4px_20px_-10px_rgba(255,255,255,0.15)]"
             )}>
                 {timeline}
             </div>

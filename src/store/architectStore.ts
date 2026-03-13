@@ -13,9 +13,9 @@ export interface ColorPalette {
 }
 
 export const DEFAULT_PALETTE: ColorPalette = {
-    primary: '#4FD1FF',
-    secondary: '#6366F1',
-    accent: '#10B981',
+    primary: 'rgba(255,255,255,0.90)',
+    secondary: 'rgba(255,255,255,0.70)',
+    accent: 'rgba(255,255,255,0.80)',
     background: '#030308',
     text: '#FFFFFF',
     muted: '#71717A'
@@ -23,9 +23,9 @@ export const DEFAULT_PALETTE: ColorPalette = {
 
 // Light mode palette
 export const LIGHT_PALETTE: ColorPalette = {
-    primary: '#3B82F6',
-    secondary: '#6366F1',
-    accent: '#10B981',
+    primary: 'rgba(0,0,0,0.90)',
+    secondary: 'rgba(0,0,0,0.70)',
+    accent: 'rgba(0,0,0,0.80)',
     background: '#FFFFFF',
     text: '#1F2937',
     muted: '#6B7280'

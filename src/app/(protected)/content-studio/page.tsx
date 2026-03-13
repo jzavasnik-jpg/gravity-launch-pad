@@ -590,7 +590,7 @@ export default function ContentStudio() {
             case 'Supported': return 'border-green-400';
             case 'Successful': return 'border-yellow-400';
             case 'Surprise & Delight': return 'border-pink-400';
-            case 'Sharing': return 'border-cyan-400';
+            case 'Sharing': return 'border-primary';
             default: return 'border-primary';
         }
     };

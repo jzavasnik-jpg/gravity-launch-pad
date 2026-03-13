@@ -391,9 +391,12 @@ export function SmartSetup() {
         try {
             const isSaaS = setupData.productType === 'saas';
 
-            const response = await fetch('http://localhost:3001/api/generate-copy', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({
                     systemPrompt: isSaaS
                         ? `You are an expert SaaS pricing strategist. Generate tiered pricing recommendations.
@@ -508,9 +511,12 @@ Generate optimal pricing recommendations.`
         setIsGeneratingValueStack(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/generate-copy', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({
                     systemPrompt: `You are a digital product pricing strategist creating a compelling value stack.
 

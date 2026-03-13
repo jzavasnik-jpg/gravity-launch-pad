@@ -1,6 +1,7 @@
 import { ThumbnailConcept, ThumbnailConceptsResponse, ScriptGenerationResponse } from "@/types/thumbnail";
 
-const API_BASE = 'http://localhost:3001';
+// Use Next.js API routes for OpenAI proxy
+const API_BASE = '';
 
 export async function generateScript(topic: string, toneLevel: number, currentScript?: string): Promise<ScriptGenerationResponse> {
     console.log("Generating script with AI...");
@@ -26,7 +27,7 @@ export async function generateScript(topic: string, toneLevel: number, currentSc
         { "script_text": "Full script content here..." }
         `;
 
-        const response = await fetch(`${API_BASE}/api/openai/chat`, {
+        const response = await fetch(`${API_BASE}/api/ai/openai`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -150,7 +151,7 @@ Ensure the hook text is punchy and viral.
 `;
 
     try {
-        const response = await fetch(`${API_BASE}/api/openai/chat`, {
+        const response = await fetch(`${API_BASE}/api/ai/openai`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

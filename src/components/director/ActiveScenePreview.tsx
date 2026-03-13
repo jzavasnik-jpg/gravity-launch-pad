@@ -45,7 +45,7 @@ interface ActiveScenePreviewProps {
   onNextScene: () => void;
 }
 
-// Label colors - cyan-only for primary, semantic for others
+// Label colors - monochrome primary, semantic for others
 const labelColors: Record<SceneLabel, string> = {
   'HOOK': 'bg-primary/20 text-primary border-primary/30',
   'PAIN': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
@@ -217,7 +217,7 @@ export function ActiveScenePreview({
       onDrop={handleDrop}
       className={cn(
         "bg-card/85 backdrop-blur-xl border rounded-xl overflow-hidden",
-        "shadow-[0_0_60px_-5px_rgba(79,209,255,0.4),0_30px_60px_-15px_rgba(0,0,0,0.9)]",
+        "shadow-[0_0_60px_-5px_rgba(255,255,255,0.4),0_30px_60px_-15px_rgba(0,0,0,0.9)]",
         isDragOver ? "border-primary ring-2 ring-primary/50" : "border-primary/40"
       )}
     >
@@ -358,7 +358,7 @@ export function ActiveScenePreview({
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                       <Button
                         size="lg"
-                        className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                        className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                         onClick={onGenerateVideo}
                         disabled={isGenerating}
                       >
@@ -381,7 +381,7 @@ export function ActiveScenePreview({
                     </Button>
                     <Button
                       size="sm"
-                      className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                      className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                       onClick={onGenerateVideo}
                       disabled={isGenerating}
                     >
@@ -410,7 +410,7 @@ export function ActiveScenePreview({
                       </p>
                       <Button
                         size="lg"
-                        className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                        className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                         onClick={onGenerateImage}
                       >
                         <Sparkles className="w-5 h-5 mr-2" />

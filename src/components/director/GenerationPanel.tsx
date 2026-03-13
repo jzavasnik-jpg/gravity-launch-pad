@@ -36,7 +36,7 @@ const visualStyles: Record<VisualStyle, { name: string; description: string; pre
   bold: {
     name: 'Bold & Vibrant',
     description: 'High saturation, strong contrast, attention-grabbing',
-    preview: 'bg-gradient-to-br from-pink-500/40 via-purple-500/40 to-cyan-500/40'
+    preview: 'bg-gradient-to-br from-pink-500/40 via-purple-500/40 to-primary/40'
   },
   minimal: {
     name: 'Minimal',
@@ -125,7 +125,7 @@ export function GenerationPanel({
                   className={cn(
                     "relative p-3 rounded-xl border transition-all text-left",
                     isSelected
-                      ? "border-primary/50 bg-primary/5 shadow-[0_0_20px_-5px_rgba(79,209,255,0.3)]"
+                      ? "border-primary/50 bg-primary/5 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                       : "border-border bg-card hover:border-primary/30"
                   )}
                 >
@@ -183,7 +183,7 @@ export function GenerationPanel({
               "w-full h-12",
               allImagesReady
                 ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                : "bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:bg-primary/90"
+                : "bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:bg-primary/90"
             )}
             onClick={onGenerateAllImages}
             disabled={isGenerating || scenes.length === 0}

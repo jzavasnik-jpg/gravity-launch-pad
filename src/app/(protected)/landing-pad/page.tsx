@@ -703,7 +703,7 @@ Generate a value stack that makes $${setupData.oneTimePrice} feel like a steal.`
                                 </p>
                             </div>
 
-                            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 space-y-4 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)]">
+                            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 space-y-4 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)]">
                                 <AvatarSelector
                                     selectedAvatar={selectedAvatar}
                                     onAvatarSelect={handleAvatarSelect}
@@ -795,7 +795,7 @@ Generate a value stack that makes $${setupData.oneTimePrice} feel like a steal.`
                                 </p>
                             </div>
 
-                            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 space-y-6 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)]">
+                            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 space-y-6 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)]">
                                 {isLoadingSessionData && (
                                     <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
                                         <Loader2 className="w-4 h-4 animate-spin text-primary" />
@@ -896,7 +896,7 @@ Generate a value stack that makes $${setupData.oneTimePrice} feel like a steal.`
                                 </p>
                             </div>
 
-                            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 space-y-6 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)]">
+                            <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 space-y-6 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)]">
                                 {/* AI Pricing Assistant */}
                                 <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
                                     <div className="flex items-center gap-3">
@@ -1181,7 +1181,7 @@ Generate a value stack that makes $${setupData.oneTimePrice} feel like a steal.`
 
                         <Button
                             onClick={handleContinue}
-                            className="bg-gradient-to-r from-primary to-cyan-400 text-black font-bold px-8 shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)]"
+                            className="bg-gradient-to-r from-primary to-primary text-black font-bold px-8 shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)]"
                         >
                             {step < 3 ? (
                                 <>

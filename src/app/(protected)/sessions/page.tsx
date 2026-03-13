@@ -41,7 +41,7 @@ export default function SessionsPage() {
 
   useEffect(() => {
     async function loadAssets() {
-      const userId = user?.uid;
+      const userId = user?.id;
 
       if (!userId) {
         if (authLoading) {
@@ -89,7 +89,7 @@ export default function SessionsPage() {
     }
 
     loadAssets();
-  }, [user?.uid, authLoading]);
+  }, [user?.id, authLoading]);
 
   const filteredSessions = sessions.filter((s) => {
     if (filter === "completed") return s.session.completed;

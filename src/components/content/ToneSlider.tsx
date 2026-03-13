@@ -5,8 +5,14 @@ import { useProjectStore } from '@/store/projectStore';
 export function ToneSlider() {
     const { toneValue, setToneValue, regenerateContent, regenerateHooks, isRegenerating } = useProjectStore();
 
+    // Ensure toneValue is always a valid number to prevent infinite loops
+    const safeValue = typeof toneValue === 'number' && !isNaN(toneValue) ? toneValue : 50;
+
     const handleValueChange = (vals: number[]) => {
-        setToneValue(vals[0]);
+        const newValue = vals[0];
+        if (typeof newValue === 'number' && !isNaN(newValue) && newValue !== safeValue) {
+            setToneValue(newValue);
+        }
     };
 
     const handleValueCommit = () => {
@@ -17,11 +23,11 @@ export function ToneSlider() {
         <div className="flex flex-col gap-3 w-72 p-4 bg-card border border-border rounded-lg">
             <div className="flex justify-between items-center">
                 <span className="text-base font-medium text-foreground">Tone & Voice</span>
-                <span className="text-sm text-muted-foreground">{toneValue}%</span>
+                <span className="text-sm text-muted-foreground">{safeValue}%</span>
             </div>
 
             <Slider
-                value={[toneValue]}
+                value={[safeValue]}
                 onValueChange={handleValueChange}
                 max={100}
                 step={10}

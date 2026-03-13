@@ -164,7 +164,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] glass-panel">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Welcome to Launch Pad</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Welcome to Launch</DialogTitle>
           <DialogDescription>
             Sign in to access your account or create a new one to get started
           </DialogDescription>

@@ -1,9 +1,13 @@
 
 import { saveGeneratedAsset } from "./slide-storage";
 
+// Supabase Edge Function URL for content generation
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
 export async function generateContent(prompt: string, assets: { url: string, mimeType: string }[] = [], aspectRatio: string = '16:9'): Promise<string> {
     try {
-        console.log(`Generating image via local proxy (Gemini 3)...`);
+        console.log(`Generating image via Supabase Edge Function (Gemini 3)...`);
         console.log(`   - Prompt: ${prompt.substring(0, 50)}...`);
         console.log(`   - Assets: ${assets.length}`);
         console.log(`   - AspectRatio: ${aspectRatio}`);
@@ -30,10 +34,11 @@ export async function generateContent(prompt: string, assets: { url: string, mim
             return asset;
         }));
 
-        const response = await fetch('http://localhost:3001/api/generate-content', {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-content`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({ prompt, assets: processedAssets, aspectRatio })
         });

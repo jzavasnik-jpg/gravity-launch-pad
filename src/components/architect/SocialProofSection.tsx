@@ -85,9 +85,12 @@ Metrics provided: ${data.socialProof.metrics.map(m => `${m.value} ${m.label}`).j
 
 Generate a headline and subheadline that frames this social proof compellingly.`;
 
-            const res = await fetch('http://localhost:3001/api/generate-copy', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({ systemPrompt, userPrompt })
             });
 
@@ -240,7 +243,7 @@ Generate a headline and subheadline that frames this social proof compellingly.`
             <Button
                 onClick={handleGenerate}
                 disabled={isGenerating || (data.socialProof.testimonials.length === 0 && data.socialProof.metrics.length === 0)}
-                className="w-full h-12 text-md font-bold bg-gradient-to-r from-primary to-cyan-400 hover:from-primary/90 hover:to-cyan-400/90 text-white shadow-lg shadow-primary/20"
+                className="w-full h-12 text-md font-bold bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 text-white shadow-lg shadow-primary/20"
             >
                 {isGenerating ? (
                     <>

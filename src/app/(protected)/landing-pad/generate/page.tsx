@@ -462,7 +462,7 @@ Generate a value stack that makes $${data.productPrice} feel like a steal. Do NO
                 </div>
 
                 {/* Progress Steps */}
-                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3)]">
+                <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl p-6 shadow-[0_0_40px_-8px_rgba(255,255,255,0.3)]">
                     <div className="space-y-3">
                         {GENERATION_STEPS.map((step, index) => {
                             const isCompleted = completedSteps.includes(step.id);

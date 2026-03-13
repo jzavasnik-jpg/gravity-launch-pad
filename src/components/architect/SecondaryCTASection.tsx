@@ -37,9 +37,12 @@ Any existing subheadline: ${data.secondaryCTA.subheadline || "Not set"}
 
 Generate compelling mid-page CTA copy that converts scrollers.`;
 
-            const res = await fetch('http://localhost:3001/api/generate-copy', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-copy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+                },
                 body: JSON.stringify({ systemPrompt, userPrompt })
             });
 
@@ -151,7 +154,7 @@ Generate compelling mid-page CTA copy that converts scrollers.`;
             <Button
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className="w-full h-12 text-md font-bold bg-gradient-to-r from-primary to-cyan-400 hover:from-primary/90 hover:to-cyan-400/90 text-white shadow-lg shadow-primary/20"
+                className="w-full h-12 text-md font-bold bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 text-white shadow-lg shadow-primary/20"
             >
                 {isGenerating ? (
                     <>

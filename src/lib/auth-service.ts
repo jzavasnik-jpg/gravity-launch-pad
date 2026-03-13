@@ -68,6 +68,22 @@ export async function signUpWithEmail(
     // Create user record in Supabase users table
     if (user) {
       await createUserRecord(user.id, email, name);
+
+      // Send branded verification email via Resend
+      try {
+        await fetch('/api/auth/send-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            name,
+            confirmationUrl: `${window.location.origin}/auth/callback`,
+          }),
+        });
+      } catch (resendErr) {
+        console.warn('[auth] Failed to send Resend verification email:', resendErr);
+        // Don't block signup if Resend fails — Supabase may send its own
+      }
     }
 
     return { user, error: null };
@@ -308,19 +324,15 @@ export async function updateUserProfile(
   try {
     const updates: Partial<UserRecord> = {};
     if (data.name) updates.name = data.name;
+    if (data.photo_url) updates.avatar_url = data.photo_url;
 
-    // Update Supabase user record
+    // Update Supabase user record (database) - this is the important one
     await updateUserRecord(userId, updates);
+    console.log('[updateUserProfile] Database updated successfully');
 
-    // Update Supabase Auth user metadata
-    if (data.name || data.photo_url) {
-      await supabase.auth.updateUser({
-        data: {
-          name: data.name,
-          avatar_url: data.photo_url,
-        },
-      });
-    }
+    // Skip updating Supabase Auth metadata - it hangs and isn't needed
+    // The avatar_url in the users table is what we display
+    // supabase.auth.updateUser() has issues with hanging
 
     return true;
   } catch (error) {
@@ -360,4 +372,82 @@ export async function markEmailVerified(userId: string): Promise<boolean> {
   return updateUserRecord(userId, { is_email_verified: true });
 }
 
-// Note: Photo upload now handled by storage-service.ts with Backblaze B2
+/**
+ * Upload user profile photo via API route
+ * @param userId - The user's ID
+ * @param file - The file to upload
+ * @param accessToken - The user's access token (pass from component to avoid getSession() hanging)
+ */
+export async function uploadUserPhoto(userId: string, file: File, accessToken?: string): Promise<string | null> {
+  console.log('[uploadUserPhoto] Starting upload for user:', userId, 'file:', file.name);
+
+  try {
+    let token = accessToken;
+
+    // If no token provided, try to get it (with timeout)
+    if (!token) {
+      console.log('[uploadUserPhoto] No token provided, trying getSession...');
+      try {
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Session timeout')), 3000)
+        );
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as Awaited<typeof sessionPromise>;
+        token = session?.access_token;
+      } catch (e) {
+        console.error('[uploadUserPhoto] getSession failed:', e);
+      }
+    }
+
+    if (!token) {
+      console.error('[uploadUserPhoto] No auth token available');
+      return null;
+    }
+
+    console.log('[uploadUserPhoto] Got auth token, creating form data...');
+
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', file);
+
+    console.log('[uploadUserPhoto] Uploading via API...');
+
+    // Upload via API route with timeout
+    const controller = new AbortController();
+    const uploadTimeout = setTimeout(() => controller.abort(), 30000); // 30s timeout for upload
+
+    try {
+      const response = await fetch('/api/upload-photo', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(uploadTimeout);
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('[uploadUserPhoto] API error:', error);
+        return null;
+      }
+
+      const { url } = await response.json();
+      console.log('[uploadUserPhoto] Upload successful, URL:', url);
+      return url;
+    } catch (fetchError: any) {
+      clearTimeout(uploadTimeout);
+      if (fetchError.name === 'AbortError') {
+        console.error('[uploadUserPhoto] Upload timed out');
+      } else {
+        console.error('[uploadUserPhoto] Fetch error:', fetchError);
+      }
+      return null;
+    }
+  } catch (error) {
+    console.error('[uploadUserPhoto] Error uploading user photo:', error);
+    return null;
+  }
+}

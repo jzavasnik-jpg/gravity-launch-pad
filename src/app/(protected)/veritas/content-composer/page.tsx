@@ -388,7 +388,7 @@ export default function ContentComposerPage() {
                 </div>
                 <Button
                     onClick={handleNext}
-                    className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(79,209,255,0.5)] hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(255,255,255,0.5)] hover:bg-primary/90"
                 >
                     Next: Director's Cut <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -623,7 +623,7 @@ export default function ContentComposerPage() {
                         )}
 
                         {/* Hook Lab */}
-                        <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
+                        <div className="bg-card/85 backdrop-blur-xl border border-primary/25 rounded-xl overflow-hidden shadow-[0_0_40px_-8px_rgba(255,255,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]">
                             <HookLab />
                         </div>
 
@@ -686,7 +686,7 @@ export default function ContentComposerPage() {
                         {/* Regenerating Overlay - Step-based Magic Moment */}
                         {isRegenerating && (
                             <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-                                <div className="bg-card/95 backdrop-blur-xl border border-primary/25 rounded-2xl p-8 shadow-[0_0_60px_-10px_rgba(79,209,255,0.3)]">
+                                <div className="bg-card/95 backdrop-blur-xl border border-primary/25 rounded-2xl p-8 shadow-[0_0_60px_-10px_rgba(255,255,255,0.3)]">
                                     <StepProgressLoader
                                         title="Generating Scene-by-Scene Script"
                                         subtitle="Creating your complete video script with visual descriptions"
