@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import MarketingLayoutClient from "./MarketingLayoutClient";
 
 export const metadata: Metadata = {
-  title: "Launch by Gravity | AI-Powered Market Validation",
+  title: {
+    default: "Launch by Gravity | AI-Powered Market Validation",
+    template: "%s | Launch by Gravity",
+  },
   description:
     "Transform your product ideas into market-ready launches with AI-powered customer research, content creation, and viral marketing strategies.",
 };

@@ -472,6 +472,60 @@
   box-shadow: 0 0 30px rgba(255,255,255,0.08);
 }
 
+/* Interactive glass card with gradient border glow on hover */
+.victor-glass-card-interactive {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s;
+}
+
+.victor-glass-card-interactive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(var(--border-angle), transparent, transparent);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.victor-glass-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.04);
+}
+
+.victor-glass-card-interactive:hover::after {
+  opacity: 1;
+  background: linear-gradient(var(--border-angle), var(--border-color-1), var(--border-color-2));
+}
+
+/* Dark mode: blue/teal border glow (matches gradient button dark variant) */
+.dark .victor-glass-card-interactive {
+  --border-color-1: hsla(190, 60%, 60%, 0.3);
+  --border-color-2: hsla(190, 60%, 40%, 0.1);
+}
+
+/* Light mode: rose/mauve border glow (matches gradient button light variant) */
+:root .victor-glass-card-interactive {
+  --border-color-1: hsla(340, 75%, 60%, 0.2);
+  --border-color-2: hsla(340, 75%, 40%, 0.08);
+}
+
+/* Tab content fade transition */
+.tab-content-enter {
+  animation: tab-fade-in 0.3s ease both;
+}
+
+@keyframes tab-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Landing page animations */
 .reveal-on-scroll {
   opacity: 0;
@@ -493,6 +547,81 @@
 }
 .animate-scroll-hint {
   animation: scroll-hint 2s ease-in-out infinite;
+}
+
+/* Blur-to-sharp reveal (Flow-style) */
+.reveal-blur {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, filter 0.8s ease, transform 0.8s ease;
+}
+.reveal-blur.visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+/* Scale-up reveal */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Slide-in from sides */
+.reveal-left {
+  transform: translateX(-40px);
+  opacity: 0;
+  transition: all 0.7s ease;
+}
+.reveal-right {
+  transform: translateX(40px);
+  opacity: 0;
+  transition: all 0.7s ease;
+}
+.reveal-left.visible, .reveal-right.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Mosaic tile hover */
+.mosaic-tile {
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+.mosaic-tile:hover {
+  transform: scale(1.03);
+  filter: brightness(1.15);
+}
+
+/* Floating animation for mosaic */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+/* Nav active section indicator */
+.nav-link-active {
+  color: var(--foreground);
+  position: relative;
+}
+.nav-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--foreground);
+  border-radius: 1px;
+  opacity: 0.5;
 }
 
 /* Accessibility */

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 interface FloatingCardProps {
   children: React.ReactNode;
   intensity?: 'subtle' | 'medium' | 'strong';
+  interactive?: boolean;
   className?: string;
 }
 
@@ -21,6 +22,7 @@ const hoverGlowStyles = {
 export function FloatingCard({
   children,
   intensity = 'medium',
+  interactive = false,
   className
 }: FloatingCardProps) {
   return (
@@ -29,6 +31,7 @@ export function FloatingCard({
       'hover:-translate-y-1 transition-all duration-400',
       glowStyles[intensity],
       hoverGlowStyles[intensity],
+      interactive && 'victor-glass-card-interactive',
       className
     )}>
       {children}
