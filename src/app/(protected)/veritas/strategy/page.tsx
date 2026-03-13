@@ -63,7 +63,7 @@ export default function StrategyPage() {
             // Only load once
             if (hasLoadedDataRef.current) return;
 
-            const userId = user?.uid || appState.userId;
+            const userId = user?.id || appState.userId;
             if (!userId) {
                 console.log('[Strategy] No user ID available, skipping database load');
                 setLoadingData(false);
@@ -110,7 +110,7 @@ export default function StrategyPage() {
         }
 
         loadICPData();
-    }, [user?.uid, appState.userId]);
+    }, [user?.id, appState.userId]);
 
     // Framework selection now uses store (selectedFrameworkId from contentStrategyState)
     const [showAllFrameworks, setShowAllFrameworks] = useState(false);
@@ -962,7 +962,7 @@ export default function StrategyPage() {
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                        {appState.avatarData.buying_triggers.map((trigger, i) => (
+                                        {appState.avatarData.buying_triggers.map((trigger: string, i: number) => (
                                             <Badge
                                                 key={i}
                                                 variant="outline"

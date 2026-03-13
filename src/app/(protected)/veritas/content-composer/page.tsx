@@ -181,14 +181,14 @@ export default function ContentComposerPage() {
             // AI Strategy page selections (flow through to Hook Lab)
             selectedStrategyCandidate: selectedCandidate ? {
                 name: selectedCandidate.name,
-                primarySixS: selectedCandidate.primarySixS,
-                secondarySixS: selectedCandidate.secondarySixS,
-                angle: selectedCandidate.angle,
+                primarySixS: selectedCandidate.primarySixS || '',
+                secondarySixS: selectedCandidate.secondarySixS || '',
+                angle: selectedCandidate.angle || '',
                 hookPreview: selectedCandidate.hookPreview || '',
             } : undefined,
             selectedTemperatureStrategy: currentTemperatureStrategy ? {
                 temperature: selectedTemperature || 'cold',
-                hooks: currentTemperatureStrategy.hooks.map(h => ({ text: h.text, angle: h.angle })),
+                hooks: (currentTemperatureStrategy.hooks || []).map(h => ({ text: h.text, angle: h.angle })),
                 toneGuidance: currentTemperatureStrategy.toneGuidance || '',
             } : undefined,
             selectedPsychologicalTrigger: triggerDef ? {
@@ -443,9 +443,9 @@ export default function ContentComposerPage() {
                         </div>
                         {selectedCandidate && (
                             <div className="flex items-center gap-1 pl-3 border-l border-border/50">
-                                <span className="text-base">{SIX_S_DEFINITIONS[selectedCandidate.primarySixS]?.icon}</span>
+                                <span className="text-base">{selectedCandidate.primarySixS ? SIX_S_DEFINITIONS[selectedCandidate.primarySixS as keyof typeof SIX_S_DEFINITIONS]?.icon : null}</span>
                                 <span className="text-sm text-muted-foreground">
-                                    {SIX_S_DEFINITIONS[selectedCandidate.primarySixS]?.label}
+                                    {selectedCandidate.primarySixS ? SIX_S_DEFINITIONS[selectedCandidate.primarySixS as keyof typeof SIX_S_DEFINITIONS]?.label : null}
                                 </span>
                             </div>
                         )}
@@ -597,7 +597,9 @@ export default function ContentComposerPage() {
 
                                 <div className="flex flex-wrap gap-2">
                                     <span className="text-sm text-muted-foreground">Suggested CTAs:</span>
-                                    {currentTemperatureStrategy.ctaOptions.slice(0, 4).map((cta, i) => (
+                                    {(currentTemperatureStrategy.ctaOptions || []).slice(0, 4).map((cta, i) => {
+                                        const ctaText = typeof cta === 'string' ? cta : cta.text;
+                                        return (
                                         <Badge
                                             key={i}
                                             variant="outline"
@@ -608,13 +610,14 @@ export default function ContentComposerPage() {
                                             )}
                                             onClick={() => {
                                                 // Could copy to clipboard or auto-fill CTA scene
-                                                toast.success(`CTA copied: "${cta.text}"`);
-                                                navigator.clipboard.writeText(cta.text);
+                                                toast.success(`CTA copied: "${ctaText}"`);
+                                                navigator.clipboard.writeText(ctaText);
                                             }}
                                         >
-                                            {cta.text}
+                                            {ctaText}
                                         </Badge>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

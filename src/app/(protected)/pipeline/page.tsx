@@ -36,11 +36,8 @@ import {
   generatePipeline,
   upcyclePipeline,
   getOrCreateAvatarSeed,
-  getMockValidatedIdea,
-  pipelineStages
 } from "@/lib/pipeline-api";
-import { AssetService } from "@/lib/asset-service";
-import { Asset } from "@/lib/asset-types";
+import type { Asset } from "@/lib/asset-types";
 
 type PipelineStage = 'avatar' | 'validation' | 'generate' | 'upcycle';
 
@@ -249,9 +246,8 @@ export default function PipelinePage() {
     try {
       const response = await generatePipeline({
         validated_idea_id: validatedIdea.id,
-        platform: selectedRootPlatform as 'twitter' | 'tiktok' | 'linkedin' | 'instagram' | 'youtube' | 'facebook',
+        root_platform: selectedRootPlatform as 'twitter' | 'tiktok' | 'linkedin' | 'instagram' | 'youtube' | 'facebook',
         selected_hook_id: selectedHookId || undefined,
-        product_assets: Array.from(selectedAssetIds)
       });
 
       setContentRoot(response.content_root);

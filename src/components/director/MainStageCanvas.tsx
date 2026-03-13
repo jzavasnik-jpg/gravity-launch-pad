@@ -24,8 +24,8 @@ const useImage = (url: string) => {
 
 const URLImage = ({ src, x, y, width, height, isSelected, onSelect, onChange, draggable }: any) => {
     const image = useImage(src);
-    const shapeRef = useRef<any>();
-    const trRef = useRef<any>();
+    const shapeRef = useRef<any>(null);
+    const trRef = useRef<any>(null);
 
     useEffect(() => {
         if (isSelected) {

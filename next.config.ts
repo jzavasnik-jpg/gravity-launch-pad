@@ -1,16 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Skip type checking during builds (we'll fix errors incrementally)
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   // Set explicit turbopack root to silence lockfile warning
   experimental: {
     turbo: {
       root: __dirname,
     },
-  },
+  } as NextConfig["experimental"] & Record<string, unknown>,
   // Allow CORS for CTO Command Center preview iframe
   async headers() {
     return [

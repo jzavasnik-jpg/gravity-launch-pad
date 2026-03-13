@@ -234,7 +234,7 @@ export async function analyzeRedditSentiment(
         const subreddits = suggestSubreddits(targetAudience);
 
         let totalPosts = 0;
-        let sentimentCounts = { frustrated: 0, hopeful: 0, desperate: 0, skeptical: 0, determined: 0 };
+        let sentimentCounts: Record<string, number> = { frustrated: 0, hopeful: 0, desperate: 0, skeptical: 0, determined: 0 };
         let themeWords: Map<string, number> = new Map();
 
         // Collect posts for analysis (NOT for display) via proxy

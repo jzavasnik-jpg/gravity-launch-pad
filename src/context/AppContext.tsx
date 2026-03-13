@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { createICPSession, updateICPSession, getLatestICPSession } from "@/lib/database-service";
+import { createICPSession, updateICPSession, getLatestICPSession, getIncompleteICPSession } from "@/lib/database-service";
 import { vectorizeSession } from "@/lib/rag-service";
 
 interface GravityICPData {
@@ -13,7 +13,7 @@ interface GravityICPData {
 
 interface CoreDesire {
   name: string;
-  description: string;
+  description?: string;
 }
 
 interface SixS {
@@ -278,6 +278,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   }, []);
 
+  // Move hydrateSessionData before initializeSession since it's a dependency
+  const hydrateSessionData = useCallback((sessionData: any) => {
+    setAppState((prev) => ({
+      ...prev,
+      sessionId: sessionData.id,
+      gravityICP: {
+        ...prev.gravityICP,
+        answers: sessionData.answers || prev.gravityICP.answers,
+        currentQuestion: sessionData.current_question || 0,
+      },
+      selectedCoreDesire: sessionData.core_desire || prev.selectedCoreDesire,
+      selectedSixS: sessionData.six_s || prev.selectedSixS,
+    }));
+  }, []);
+
   const initializeSession = useCallback(async () => {
     console.log('[AppContext] initializeSession called', {
       hasUserId: !!appState.userId,
@@ -296,8 +311,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
 
+    // Check for existing incomplete session first (to recover previous progress)
+    console.log('[AppContext] Checking for incomplete session...');
+    try {
+      const incompleteSession = await getIncompleteICPSession(appState.userId);
+
+      if (incompleteSession) {
+        console.log('[AppContext] Found incomplete session:', incompleteSession.id);
+        hydrateSessionData(incompleteSession);
+        return;
+      }
+    } catch (error) {
+      console.warn('[AppContext] Error checking for incomplete session:', error);
+    }
+
+    // No incomplete session found, create new one
     console.log('[AppContext] Creating new session...');
-    // Create new session in database
     const session = await createICPSession(
       appState.userId,
       appState.userName,
@@ -311,21 +340,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } else {
       console.error('[AppContext] Failed to create session');
     }
-  }, [appState.userId, appState.userName, appState.sessionId, appState.gravityICP]);
-
-  const hydrateSessionData = useCallback((sessionData: any) => {
-    setAppState((prev) => ({
-      ...prev,
-      sessionId: sessionData.id,
-      gravityICP: {
-        ...prev.gravityICP,
-        answers: sessionData.answers || prev.gravityICP.answers,
-        currentQuestion: sessionData.current_question || 0,
-      },
-      selectedCoreDesire: sessionData.core_desire || prev.selectedCoreDesire,
-      selectedSixS: sessionData.six_s || prev.selectedSixS,
-    }));
-  }, []);
+  }, [appState.userId, appState.userName, appState.sessionId, appState.gravityICP, hydrateSessionData]);
 
   const resetState = useCallback(() => {
     setAppState(initialState);

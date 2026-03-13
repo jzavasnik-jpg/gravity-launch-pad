@@ -1,5 +1,7 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+'use client';
+
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -13,6 +15,20 @@ export const ProtectedRoute = ({
   requireEmailVerification = false,
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isEmailVerified, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (!isAuthenticated) {
+      router.push("/");
+      return;
+    }
+
+    if (requireEmailVerification && !isEmailVerified) {
+      router.push("/");
+    }
+  }, [loading, isAuthenticated, isEmailVerified, requireEmailVerification, router]);
 
   if (loading) {
     return (
@@ -23,11 +39,11 @@ export const ProtectedRoute = ({
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return null;
   }
 
   if (requireEmailVerification && !isEmailVerified) {
-    return <Navigate to="/" replace />;
+    return null;
   }
 
   return <>{children}</>;

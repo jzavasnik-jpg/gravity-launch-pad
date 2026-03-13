@@ -3,13 +3,14 @@ export type SixSCategory = 'Significance' | 'Safe' | 'Supported' | 'Successful' 
 
 export interface MarketQuote {
     id: string;
-    source: 'quora' | 'stackexchange' | 'medium' | 'forum' | 'blog' | 'news' | 'paa' | 'google';
+    source: 'quora' | 'stackexchange' | 'medium' | 'forum' | 'blog' | 'news' | 'paa' | 'google' | 'reddit';
     text: string;
     author?: string;
     url?: string;
     upvotes?: number;
     timestamp?: string;
     displayLink?: string;
+    subreddit?: string;
     relevanceScore: number;
     emotionalTone: SixSCategory; // Now uses Six S framework
     isRealQuote: boolean; // Source transparency: true = from real search, false = AI-generated
@@ -30,6 +31,8 @@ export interface MarketIntelligence {
     };
     aiReasoning: string;
     suggestedSources: string[];
+    suggestedSubreddits?: string[];
+    trends?: Array<{ topic: string; score?: number; source?: string }>;
     peopleAlsoAsk: Array<{ question: string; snippet: string }>;
     // Reddit sentiment (aggregated, no direct quotes per TOS)
     redditSentiment?: {
@@ -62,7 +65,9 @@ const SIX_S_SEARCH_KEYWORDS: Record<string, string[]> = {
     'sharing': ['community', 'share', 'together', 'contribute', 'belong', 'connect', 'social', 'proud'],
 };
 
-const BACKEND_URL = 'http://localhost:3001';
+// Use Supabase Edge Functions for AI operations (API keys in Vault)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
  * Decode HTML entities and clean up YouTube comment text
@@ -154,9 +159,12 @@ PRIMARY EMOTIONAL NEED (Six S): ${primarySixS || 'not specified'}
 
 Return 3-5 search queries as a JSON array that will find videos where this audience discusses THIS SPECIFIC PROBLEM. Queries must be relevant to the marketing problem statement.`;
 
-        const response = await fetch(`${BACKEND_URL}/api/generate-copy`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-copy`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            },
             body: JSON.stringify({ systemPrompt, userPrompt }),
         });
 
@@ -545,6 +553,7 @@ function analyzeRealQuotes(quotes: MarketQuote[], targetAudience: string): Marke
             realQuotes: quotes.filter(q => q.isRealQuote).length,
             googleQuotes: quotes.filter(q => q.isRealQuote).length,
             paaQuotes: 0,
+            redditPostsAnalyzed: 0,
             aiGeneratedQuotes: quotes.filter(q => !q.isRealQuote).length,
         },
     };

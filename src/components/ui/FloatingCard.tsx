@@ -7,15 +7,15 @@ interface FloatingCardProps {
 }
 
 const glowStyles = {
-  subtle: 'border-primary/15 shadow-[0_0_30px_-10px_rgba(79,209,255,0.2),0_20px_40px_-15px_rgba(0,0,0,0.7)]',
-  medium: 'border-primary/25 shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_0_20px_-5px_rgba(99,102,241,0.2),0_25px_50px_-15px_rgba(0,0,0,0.8)]',
-  strong: 'border-primary/40 shadow-[0_0_60px_-5px_rgba(79,209,255,0.4),0_0_30px_-5px_rgba(99,102,241,0.3),0_30px_60px_-15px_rgba(0,0,0,0.9)]',
+  subtle: 'border-border/60 shadow-[0_4px_12px_rgba(0,0,0,0.3),0_20px_40px_-15px_rgba(0,0,0,0.5)]',
+  medium: 'border-border shadow-[0_4px_12px_rgba(0,0,0,0.4),0_25px_50px_-15px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.03)]',
+  strong: 'border-border/150 shadow-[0_0_40px_-8px_rgba(255,255,255,0.06),0_25px_50px_-15px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)]',
 };
 
 const hoverGlowStyles = {
-  subtle: 'hover:shadow-[0_0_40px_-8px_rgba(79,209,255,0.3),0_25px_50px_-15px_rgba(0,0,0,0.8)]',
-  medium: 'hover:shadow-[0_0_60px_-5px_rgba(79,209,255,0.4),0_0_30px_-5px_rgba(99,102,241,0.3),0_30px_60px_-15px_rgba(0,0,0,0.9)]',
-  strong: 'hover:shadow-[0_0_80px_-5px_rgba(79,209,255,0.5),0_0_40px_-5px_rgba(99,102,241,0.4),0_35px_70px_-15px_rgba(0,0,0,0.95)]',
+  subtle: 'hover:shadow-[0_8px_24px_rgba(0,0,0,0.4),0_25px_50px_-15px_rgba(0,0,0,0.6)]',
+  medium: 'hover:shadow-[0_8px_24px_rgba(0,0,0,0.5),0_30px_60px_-15px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.05)]',
+  strong: 'hover:shadow-[0_0_60px_-5px_rgba(255,255,255,0.08),0_30px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.08)]',
 };
 
 export function FloatingCard({

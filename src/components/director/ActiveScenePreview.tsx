@@ -57,6 +57,8 @@ const labelColors: Record<SceneLabel, string> = {
 // Status indicators
 const statusConfig: Record<SceneStatus, { label: string; color: string; icon: React.ReactNode }> = {
   'draft': { label: 'Draft', color: 'text-muted-foreground', icon: <Edit2 className="w-4 h-4" /> },
+  'generating': { label: 'Generating...', color: 'text-primary', icon: <Loader2 className="w-4 h-4 animate-spin" /> },
+  'ready': { label: 'Ready', color: 'text-emerald-400', icon: <Check className="w-4 h-4" /> },
   'image_generating': { label: 'Generating Image...', color: 'text-primary', icon: <Loader2 className="w-4 h-4 animate-spin" /> },
   'image_ready': { label: 'Image Ready', color: 'text-emerald-400', icon: <Check className="w-4 h-4" /> },
   'video_generating': { label: 'Generating Video...', color: 'text-primary', icon: <Loader2 className="w-4 h-4 animate-spin" /> },

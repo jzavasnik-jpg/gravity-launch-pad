@@ -9,7 +9,7 @@ import { ArrowRight, RefreshCw, Brain, ChevronDown, ChevronUp, User, Target, Hea
 import { useApp } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { useProjectStore } from '@/store/projectStore';
+import { useProjectStore, type SixSGap } from '@/store/projectStore';
 import { SIX_S_DEFINITIONS, getGapPriority } from '@/lib/six-s-constants';
 import type { SixS } from '@/lib/six-s-constants';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,7 +42,7 @@ export default function MarketRadarPage() {
         async function loadICPData() {
             if (hasLoadedDataRef.current) return;
 
-            const userId = user?.uid || appState.userId;
+            const userId = user?.id || appState.userId;
             if (!userId) {
                 console.log('[Market Radar] No user ID, skipping data load');
                 setLoadingData(false);
@@ -103,7 +103,7 @@ export default function MarketRadarPage() {
         }
 
         loadICPData();
-    }, [user?.uid, appState.userId]);
+    }, [user?.id, appState.userId]);
 
     // Load existing research from AppContext on mount (persistence)
     useEffect(() => {
@@ -132,11 +132,13 @@ export default function MarketRadarPage() {
                 const gaps = extractSixSGaps(appState.contentStudioMarketIntel);
                 setSixSGaps(gaps.map(g => ({
                     category: g.category,
+                    label: g.category,
+                    question: '',
                     gapScore: g.gapScore,
-                    evidence: g.evidence,
-                    opportunities: g.opportunities,
-                    quotes: g.quotes,
-                })));
+                    marketEvidence: g.evidence ? [g.evidence] : [],
+                    voiceOfCustomer: g.quotes || [],
+                    priority: getGapPriority(g.gapScore).priority,
+                } as SixSGap)));
             }
         }
     }, [appState.contentStudioMarketIntel]);
@@ -173,8 +175,8 @@ export default function MarketRadarPage() {
                 appState.avatarData,
                 appState.gravityICP,
                 appState.marketingStatements,
-                appState.selectedCoreDesire,
-                appState.selectedSixS
+                appState.selectedCoreDesire || undefined,
+                appState.selectedSixS || undefined
             );
 
             console.log('[Market Radar] Starting deep research with context:', {
@@ -219,11 +221,13 @@ export default function MarketRadarPage() {
             const gaps = extractSixSGaps(result);
             setSixSGaps(gaps.map(g => ({
                 category: g.category,
+                label: g.category,
+                question: '',
                 gapScore: g.gapScore,
-                evidence: g.evidence,
-                opportunities: g.opportunities,
-                quotes: g.quotes,
-            })));
+                marketEvidence: g.evidence ? [g.evidence] : [],
+                voiceOfCustomer: g.quotes || [],
+                priority: getGapPriority(g.gapScore).priority,
+            } as SixSGap)));
 
             researchStages.complete();
 

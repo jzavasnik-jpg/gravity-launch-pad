@@ -20,7 +20,9 @@ import {
     PSYCHOLOGICAL_TRIGGER_DEFINITIONS,
 } from './six-s-constants';
 
-const API_BASE = 'http://localhost:3001';
+// Use Supabase Edge Functions for AI operations (API keys in Vault)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Helper to strip markdown formatting from AI-generated text
 function stripMarkdown(text: string): string {
@@ -59,6 +61,7 @@ export interface StrategyRecommendation {
         examples: string[];
     };
     triggers: PsychologicalTrigger[];
+    recommended_triggers?: PsychologicalTrigger[];
     aiReasoning: string;
     suggestedHeadline: string;
     suggestedCTA: string;
@@ -154,10 +157,11 @@ Be specific. Reference actual market data. Explain your choices clearly.`;
 
         const systemPrompt = 'You are a content strategy expert who creates data-driven, evidence-based content frameworks. You explain your reasoning clearly and reference market data.';
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt,
@@ -250,10 +254,11 @@ Return JSON:
         // Use backend proxy for Gemini API
         console.log(`[Trigger Regeneration] Regenerating ${triggerName} trigger...`);
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt: 'You are an expert at crafting psychological triggers for marketing content. Create compelling, evidence-based triggers.',
@@ -352,10 +357,11 @@ Return JSON:
 
         const systemPrompt = 'You are an expert emotional intelligence analyst. Analyze market data through the lens of the Six S Framework. Be precise with scores and always cite evidence. Take your time to deeply analyze the emotional patterns in the quotes.';
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt,
@@ -552,10 +558,11 @@ Return JSON with hookPreview containing the literal text "${displayProductName}"
 
         const systemPrompt = 'You are a strategic content advisor. Generate distinct strategy options with clear trade-offs. Be honest about risks and confidence levels. Take your time to deeply consider each strategy angle.';
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt,
@@ -838,10 +845,11 @@ Return JSON:
 
         const systemPrompt = `You are a strategic content advisor. Generate distinct story strategy options that all use the user's selected framework, trigger, and temperature. Each strategy should offer a different creative angle while staying true to the foundational selections. Be specific and reference the selections in your explanations.`;
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt,
@@ -891,7 +899,7 @@ Return JSON:
             primarySixS: primaryGap.category,
             secondarySixS: secondaryGap.category,
             angle: `Apply ${framework.name} structure with ${trigger.name} trigger for ${tempDef.label} audience`,
-            hookPreview: marketingStatements.promise,
+            hookPreview: marketingStatements.promise || '',
             whyItWorks: 'Fallback strategy - please regenerate for better results',
             confidenceScore: 60,
             recommendation: 'recommended',
@@ -1038,10 +1046,11 @@ Return JSON:
 
         const systemPrompt = `You are an expert at creating ${temperature} audience content. You understand that temperature determines HOW the message is expressed, not WHAT the message is. Be specific and actionable.`;
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt,
@@ -1081,10 +1090,10 @@ Return JSON:
             }],
             scriptOutline: {
                 opening: 'Hook delivery',
-                painAgitation: marketingStatements.problem,
+                painAgitation: marketingStatements.problem || '',
                 solutionTease: marketingStatements.solution,
                 proofPoint: 'Add your proof here',
-                cta: tempDef.ctaExamples[0],
+                cta: tempDef.ctaExamples?.[0] || '',
             },
             ctaOptions: tempDef.ctaExamples.map(cta => ({
                 text: cta,
@@ -1147,10 +1156,11 @@ Return JSON:
         // Use backend proxy for Gemini API
         console.log(`[Hooks Generation] Generating ${count} hooks for ${temperature.toUpperCase()} audience...`);
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt: 'You are an expert at crafting compelling hooks for social media content. Create attention-grabbing hooks that resonate with the target audience.',
@@ -1210,7 +1220,7 @@ Transformation: ${marketingStatements.transformation}
 
 **Customer Journey:**
 Struggle: ${painSynopsis.storyBeats.struggle}
-Guide Appears: ${painSynopsis.storyBeats.guideAppears}
+Guide Appears: ${(painSynopsis.storyBeats as any).guideAppears || painSynopsis.storyBeats.insight}
 Transformation: ${painSynopsis.storyBeats.transformation}
 
 Write a script that:
@@ -1254,10 +1264,11 @@ Return JSON:
 
         const systemPrompt = `You are a short-form video scriptwriter. Write punchy, engaging scripts for ${temperature} audiences. Every word matters.`;
 
-        const response = await fetch(`${API_BASE}/api/generate-deep`, {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-deep`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
             },
             body: JSON.stringify({
                 systemPrompt,

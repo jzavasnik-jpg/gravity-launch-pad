@@ -32,6 +32,10 @@ export interface Testimonial {
     authorName: string;
     authorTitle: string;
     authorPhoto?: string;
+    // Compatibility aliases used by some components
+    name?: string;
+    role?: string;
+    avatar?: string;
 }
 
 export interface ColorPalette {

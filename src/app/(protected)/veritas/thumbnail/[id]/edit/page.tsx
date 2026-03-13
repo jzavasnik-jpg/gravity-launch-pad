@@ -296,7 +296,7 @@ export default function ThumbnailEditPage() {
         if (!concept) return;
         setIsGenerating(true);
         try {
-            const assets = [];
+            const assets: { url: string; mimeType: string }[] = [];
             // 1. User Photo
             if (visualMessengerState?.mode === 'user' && visualMessengerState.currentUrl) {
                 assets.push({ url: visualMessengerState.currentUrl, mimeType: 'image/jpeg' });
@@ -609,7 +609,7 @@ export default function ThumbnailEditPage() {
                     const file = new File([blob], `draft-bg-${Date.now()}.png`, { type: 'image/png' });
                     try {
                         toast("Uploading draft image...");
-                        const uploaded = await uploadAsset(user.uid, {
+                        const uploaded = await uploadAsset(user.id, {
                             file,
                             title: `Draft Background (${new Date().toLocaleTimeString()})`,
                             asset_type: 'image',
@@ -706,7 +706,7 @@ export default function ThumbnailEditPage() {
                     if (blob) {
                         const file = new File([blob], `final-${Date.now()}-${aspectRatio.replace(':', '-')}.png`, { type: 'image/png' });
 
-                        await uploadAsset(user.uid, {
+                        await uploadAsset(user.id, {
                             file: file,
                             title: `Thumbnail ${aspectRatio} - ${concept?.title || 'Draft'}`,
                             asset_type: 'thumbnail',
@@ -722,7 +722,7 @@ export default function ThumbnailEditPage() {
                 } else {
                     // Use Supabase product assets table
                     const { createProductAsset } = await import('@/lib/database-service');
-                    await createProductAsset(user.uid, {
+                    await createProductAsset(user.id, {
                         title: `Thumbnail ${aspectRatio} - ${concept?.title || 'Draft'}`,
                         asset_type: 'thumbnail',
                         storage_url: storageUrl,
@@ -777,7 +777,7 @@ export default function ThumbnailEditPage() {
             const currentPrompt = concept?.image_prompt || "";
             const newPrompt = await refinePromptWithUserInstruction(currentPrompt, userInstruction);
 
-            const assets = [];
+            const assets: { url: string; mimeType: string }[] = [];
             if (visualMessengerState?.mode === 'user' && visualMessengerState.currentUrl) {
                 assets.push({ url: visualMessengerState.currentUrl, mimeType: 'image/jpeg' });
             } else {
@@ -815,7 +815,7 @@ export default function ThumbnailEditPage() {
                 setHistory(prev => [...prev, { bgImage, hooks, prompt: concept.image_prompt }]);
             }
 
-            const assets = [];
+            const assets: { url: string; mimeType: string }[] = [];
             if (visualMessengerState?.mode === 'user' && visualMessengerState.currentUrl) {
                 assets.push({ url: visualMessengerState.currentUrl, mimeType: 'image/jpeg' });
             } else {

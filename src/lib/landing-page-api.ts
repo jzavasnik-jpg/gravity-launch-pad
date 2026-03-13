@@ -147,7 +147,12 @@ function getMockContent(data: LandingPageFormData): GeneratedLandingPage {
         },
         socialProof: {
             sectionHeader: "Don't just take our word for it",
-            testimonials: data.testimonials.length > 0 ? data.testimonials : [
+            testimonials: data.testimonials.length > 0 ? data.testimonials.map(t => ({
+                quote: t.quote,
+                specificResult: t.result || '',
+                name: t.authorName,
+                title: t.authorTitle,
+            })) : [
                 { quote: "This changed everything for us.", specificResult: "30% Growth", name: "Alex Chen", title: "Director" },
                 { quote: "Simple yet powerful.", specificResult: "Saved 10h/week", name: "Sam Wilson", title: "Manager" },
                 { quote: "Highly recommended.", specificResult: "5x ROI", name: "Jordan Lee", title: "Founder" }

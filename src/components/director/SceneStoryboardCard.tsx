@@ -33,6 +33,8 @@ const labelColors: Record<SceneLabel, string> = {
 // Status indicators - compact versions
 const statusConfig: Record<SceneStatus, { icon: React.ReactNode; color: string }> = {
   'draft': { icon: <Edit2 className="w-3 h-3" />, color: 'text-muted-foreground bg-muted/50' },
+  'generating': { icon: <Loader2 className="w-3 h-3 animate-spin" />, color: 'text-primary bg-primary/10' },
+  'ready': { icon: <Check className="w-3 h-3" />, color: 'text-emerald-400 bg-emerald-500/10' },
   'image_generating': { icon: <Loader2 className="w-3 h-3 animate-spin" />, color: 'text-primary bg-primary/10' },
   'image_ready': { icon: <ImageIcon className="w-3 h-3" />, color: 'text-emerald-400 bg-emerald-500/10' },
   'video_generating': { icon: <Loader2 className="w-3 h-3 animate-spin" />, color: 'text-primary bg-primary/10' },

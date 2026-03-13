@@ -5,6 +5,7 @@ import { useProjectStore } from '@/store/projectStore';
 import { Button } from '@/components/ui/button';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { toast } from 'sonner';
 
 interface SlashCommandMenuProps {
     editor: Editor | null;

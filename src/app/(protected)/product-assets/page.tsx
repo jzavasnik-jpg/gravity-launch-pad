@@ -30,12 +30,12 @@ import {
   LayoutTemplate,
   Monitor
 } from "lucide-react";
-import { getProductAssets, createProductAsset, deleteProductAsset, ProductAsset } from "@/lib/database-service";
+import type { ProductAsset } from "@/lib/database-service";
 import { uploadAsset } from "@/lib/asset-service";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { AssetCreationWizard } from "@/components/assets/AssetCreationWizard";
-import type { Asset, AssetType } from "@/lib/asset-types";
+import type { Asset, AssetType, AssetStatus } from "@/lib/asset-types";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import {
@@ -53,50 +53,67 @@ import {
 export default function ProductAssetsPage() {
   const router = useRouter();
   const { appState } = useApp();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [loading, setLoading] = useState(true);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | AssetType>("all");
   const [showWizard, setShowWizard] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
-  // Load assets from Supabase (metadata) - files stored in Backblaze B2
+  // Helper to map Supabase ProductAsset to local Asset type
+  const mapProductAssets = (supabaseAssets: ProductAsset[]): Asset[] => {
+    return supabaseAssets.map((pa) => ({
+      id: pa.id,
+      user_uuid: pa.user_id,
+      session_id: pa.session_id || undefined,
+      asset_type: pa.asset_type as AssetType,
+      title: pa.title,
+      description: pa.description || undefined,
+      storage_url: pa.storage_url || undefined,
+      thumbnail_url: pa.thumbnail_url || undefined,
+      file_size_bytes: pa.file_size_bytes || undefined,
+      duration_seconds: pa.duration_seconds || undefined,
+      status: (pa.status || 'ready') as AssetStatus,
+      tags: pa.tags || [],
+      metadata: pa.metadata || {},
+      created_at: pa.created_at,
+      updated_at: pa.updated_at,
+    }));
+  };
+
+  // Load assets via API route (bypasses client-side Supabase issues)
   useEffect(() => {
     async function loadAssets() {
-      const userId = user?.uid || appState.userId;
-      console.log('[ProductAssets] Loading assets for userId:', userId);
+      // Prevent duplicate fetches
+      if (hasFetched) return;
 
-      if (!userId) {
-        console.log('[ProductAssets] No userId available');
-        setLoading(false);
+      // Use session from AuthContext
+      const token = session?.access_token;
+      if (!token) {
+        console.log('[ProductAssets] No auth token from context, waiting...');
         return;
       }
 
+      setHasFetched(true);
       setLoading(true);
       try {
-        const supabaseAssets = await getProductAssets(userId);
-        console.log('[ProductAssets] Supabase returned:', supabaseAssets.length, 'assets');
+        console.log('[ProductAssets] Fetching assets via API...');
+        const response = await fetch('/api/product-assets', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
-        // Map Supabase ProductAsset to local Asset type
-        const mappedAssets: Asset[] = supabaseAssets.map((pa) => ({
-          id: pa.id,
-          user_uuid: pa.user_id,
-          session_id: pa.session_id || undefined,
-          asset_type: pa.asset_type as AssetType,
-          title: pa.title,
-          description: pa.description || undefined,
-          storage_url: pa.storage_url || undefined,
-          thumbnail_url: pa.thumbnail_url || undefined,
-          file_size_bytes: pa.file_size_bytes || undefined,
-          duration_seconds: pa.duration_seconds || undefined,
-          status: pa.status || 'ready',
-          tags: pa.tags || [],
-          metadata: pa.metadata || {},
-          created_at: pa.created_at,
-          updated_at: pa.updated_at,
-        }));
+        if (!response.ok) {
+          throw new Error('Failed to fetch assets');
+        }
 
+        const data = await response.json();
+        console.log('[ProductAssets] API returned:', data.assets?.length || 0, 'assets');
+
+        const mappedAssets = mapProductAssets(data.assets || []);
         setAssets(mappedAssets);
         setFilteredAssets(mappedAssets);
       } catch (error) {
@@ -108,7 +125,7 @@ export default function ProductAssetsPage() {
     }
 
     loadAssets();
-  }, [appState.userId, user?.uid]);
+  }, [session, hasFetched]);
 
   // Filter and search
   useEffect(() => {
@@ -132,41 +149,58 @@ export default function ProductAssetsPage() {
   }, [assets, activeFilter, searchQuery]);
 
   const handleDeleteAsset = async (assetId: string) => {
-    const success = await deleteProductAsset(assetId);
-    if (success) {
-      setAssets(assets.filter((a) => a.id !== assetId));
-      toast.success("Asset deleted successfully");
-    } else {
+    const token = session?.access_token;
+    if (!token) {
+      toast.error("Not authenticated");
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/product-assets', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ assetId })
+      });
+
+      if (response.ok) {
+        setAssets(assets.filter((a) => a.id !== assetId));
+        toast.success("Asset deleted successfully");
+      } else {
+        toast.error("Failed to delete asset");
+      }
+    } catch (error) {
+      console.error('[ProductAssets] Error deleting asset:', error);
       toast.error("Failed to delete asset");
+    }
+  };
+
+  // Reload assets via API
+  const reloadAssets = async () => {
+    const token = session?.access_token;
+    if (!token) return;
+
+    try {
+      const response = await fetch('/api/product-assets', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const mappedAssets = mapProductAssets(data.assets || []);
+        setAssets(mappedAssets);
+        setFilteredAssets(mappedAssets);
+      }
+    } catch (error) {
+      console.error('[ProductAssets] Error reloading assets:', error);
     }
   };
 
   const handleWizardComplete = async (assetId: string) => {
     setShowWizard(false);
     toast.success("Asset created successfully!");
-    // Reload assets from Supabase
-    const userId = user?.uid || appState.userId;
-    if (userId) {
-      const supabaseAssets = await getProductAssets(userId);
-      const mappedAssets: Asset[] = supabaseAssets.map((pa) => ({
-        id: pa.id,
-        user_uuid: pa.user_id,
-        session_id: pa.session_id || undefined,
-        asset_type: pa.asset_type as AssetType,
-        title: pa.title,
-        description: pa.description || undefined,
-        storage_url: pa.storage_url || undefined,
-        thumbnail_url: pa.thumbnail_url || undefined,
-        file_size_bytes: pa.file_size_bytes || undefined,
-        duration_seconds: pa.duration_seconds || undefined,
-        status: pa.status || 'ready',
-        tags: pa.tags || [],
-        metadata: pa.metadata || {},
-        created_at: pa.created_at,
-        updated_at: pa.updated_at,
-      }));
-      setAssets(mappedAssets);
-    }
+    await reloadAssets();
   };
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -178,7 +212,7 @@ export default function ProductAssetsPage() {
 
     if (!files || files.length === 0) return;
 
-    const userId = user?.uid || appState.userId;
+    const userId = user?.id || appState.userId;
     if (!userId) {
       console.error("No userId found");
       toast.error("User not authenticated");
@@ -223,27 +257,8 @@ export default function ProductAssetsPage() {
       toast.dismiss(uploadToastId);
       toast.success(`${successCount} assets uploaded successfully`);
 
-      // Reload assets from Supabase
-      const supabaseAssets = await getProductAssets(userId);
-      const mappedAssets: Asset[] = supabaseAssets.map((pa) => ({
-        id: pa.id,
-        user_uuid: pa.user_id,
-        session_id: pa.session_id || undefined,
-        asset_type: pa.asset_type as AssetType,
-        title: pa.title,
-        description: pa.description || undefined,
-        storage_url: pa.storage_url || undefined,
-        thumbnail_url: pa.thumbnail_url || undefined,
-        file_size_bytes: pa.file_size_bytes || undefined,
-        duration_seconds: pa.duration_seconds || undefined,
-        status: pa.status || 'ready',
-        tags: pa.tags || [],
-        metadata: pa.metadata || {},
-        created_at: pa.created_at,
-        updated_at: pa.updated_at,
-      }));
-      setAssets(mappedAssets);
-      setFilteredAssets(mappedAssets);
+      // Reload assets via API
+      await reloadAssets();
     } catch (error) {
       console.error("Upload failed", error);
       toast.error("Failed to upload assets");

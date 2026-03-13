@@ -195,7 +195,7 @@ export async function regeneratePlatformVariant(
     productName: string
 ): Promise<PlatformContentVariant> {
 
-    const content = await generatePlatformContent(platform, strategy, painSynopsis, productName, 1);
+    const content = await generatePlatformContent(platform, strategy, painSynopsis, productName, [], 1);
     return content.variants[0];
 }
 

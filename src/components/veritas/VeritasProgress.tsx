@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Check, ChevronRight } from 'lucide-react';
 
@@ -31,30 +34,30 @@ interface VeritasProgressProps {
 
 /**
  * VeritasProgress - Shows user's position in the Veritas content pipeline
- * 
+ *
  * Displays a horizontal step indicator showing:
  * - Completed steps (checkmark)
  * - Current step (highlighted)
  * - Upcoming steps (dimmed)
  */
-export function VeritasProgress({ 
-  compact = false, 
+export function VeritasProgress({
+  compact = false,
   className,
-  clickable = true 
+  clickable = true
 }: VeritasProgressProps) {
-  const location = useLocation();
-  const navigate = useNavigate();
-  
+  const pathname = usePathname();
+  const router = useRouter();
+
   // Find current step index
-  const currentIndex = VERITAS_STEPS.findIndex(step => 
-    location.pathname.includes(step.path) || location.pathname.includes(step.id)
+  const currentIndex = VERITAS_STEPS.findIndex(step =>
+    pathname.includes(step.path) || pathname.includes(step.id)
   );
-  
+
   const handleStepClick = (step: VeritasStep, index: number) => {
     if (!clickable) return;
     // Only allow clicking on completed or current steps
     if (index <= currentIndex) {
-      navigate(step.path);
+      router.push(step.path);
     }
   };
 
@@ -65,7 +68,7 @@ export function VeritasProgress({
           const isCompleted = index < currentIndex;
           const isCurrent = index === currentIndex;
           const isUpcoming = index > currentIndex;
-          
+
           return (
             <React.Fragment key={step.id}>
               <button
@@ -82,7 +85,7 @@ export function VeritasProgress({
               >
                 {isCompleted ? <Check className="w-4 h-4" /> : step.icon}
               </button>
-              
+
               {index < VERITAS_STEPS.length - 1 && (
                 <ChevronRight className={cn(
                   "w-3 h-3",
@@ -102,7 +105,7 @@ export function VeritasProgress({
         const isCompleted = index < currentIndex;
         const isCurrent = index === currentIndex;
         const isUpcoming = index > currentIndex;
-        
+
         return (
           <React.Fragment key={step.id}>
             <button
@@ -125,13 +128,13 @@ export function VeritasProgress({
               )}>
                 {isCompleted ? <Check className="w-3 h-3" /> : index + 1}
               </div>
-              
+
               {/* Label (hidden on smaller screens) */}
               <span className="hidden md:inline text-sm whitespace-nowrap">
                 {step.shortLabel}
               </span>
             </button>
-            
+
             {/* Connector line */}
             {index < VERITAS_STEPS.length - 1 && (
               <div className={cn(
@@ -150,10 +153,10 @@ export function VeritasProgress({
  * VeritasProgressMinimal - Ultra-compact dot indicator
  */
 export function VeritasProgressMinimal({ className }: { className?: string }) {
-  const location = useLocation();
-  
-  const currentIndex = VERITAS_STEPS.findIndex(step => 
-    location.pathname.includes(step.path) || location.pathname.includes(step.id)
+  const pathname = usePathname();
+
+  const currentIndex = VERITAS_STEPS.findIndex(step =>
+    pathname.includes(step.path) || pathname.includes(step.id)
   );
 
   return (
@@ -161,7 +164,7 @@ export function VeritasProgressMinimal({ className }: { className?: string }) {
       {VERITAS_STEPS.map((step, index) => {
         const isCompleted = index < currentIndex;
         const isCurrent = index === currentIndex;
-        
+
         return (
           <div
             key={step.id}

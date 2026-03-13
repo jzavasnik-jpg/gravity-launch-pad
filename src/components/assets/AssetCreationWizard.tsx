@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Video, Upload, Image, ArrowRight, ArrowLeft, X } from "lucide-react";
+import { Video, Upload, Image, ArrowRight, ArrowLeft, X, Loader2 } from "lucide-react";
 import { GlassPanel } from "@/components/GlassPanel";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { RecordingInterface } from "./RecordingInterface";

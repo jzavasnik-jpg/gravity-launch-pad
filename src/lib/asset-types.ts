@@ -17,9 +17,10 @@ export interface Asset {
   session_id?: string;
   asset_type: AssetType;
   title: string;
+  name?: string;
   description?: string;
-  storage_provider: StorageProvider;
-  storage_path: string;
+  storage_provider?: StorageProvider;
+  storage_path?: string;
   storage_url?: string;
   file_size_bytes?: number;
   mime_type?: string;
@@ -179,6 +180,7 @@ export interface AssetSearchParams {
   tags?: string[];
   search_query?: string;
   linked_to_seed?: string;
+  session_id?: string;
   sort_by?: 'created_at' | 'updated_at' | 'title' | 'file_size';
   sort_order?: 'asc' | 'desc';
   limit?: number;

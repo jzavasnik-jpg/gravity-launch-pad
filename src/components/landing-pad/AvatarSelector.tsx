@@ -31,20 +31,25 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-interface AvatarData {
+export interface AvatarData {
     id: string;
     name: string;
-    photo_url?: string;
-    occupation?: string;
-    pain_points?: string[];
+    photo_url?: string | null;
+    occupation?: string | null;
+    pain_points?: string[] | any;
     icp_session_id: string | null;  // Can be null for orphaned avatars
+    age?: number | null;
+    gender?: string | null;
+    deleted_at?: string | null;
 }
 
 interface SessionData {
     id: string;
-    user_name?: string;
-    created_at?: string;
-    completed?: boolean;
+    user_id?: string | null;
+    user_name?: string | null;
+    created_at?: string | null;
+    completed?: boolean | null;
+    updated_at?: string | null;
 }
 
 interface AvatarSelectorProps {
@@ -255,7 +260,7 @@ export function AvatarSelector({
                 {selectedAvatar ? (
                     <>
                         <Avatar className="w-10 h-10 border border-primary/20">
-                            <AvatarImage src={selectedAvatar.photo_url} />
+                            <AvatarImage src={selectedAvatar.photo_url ?? undefined} />
                             <AvatarFallback className="bg-primary/10 text-primary">
                                 {selectedAvatar.name?.charAt(0) || "A"}
                             </AvatarFallback>
@@ -328,7 +333,7 @@ export function AvatarSelector({
                                             )}
                                         >
                                             <Avatar className="w-9 h-9 border border-orange-500/30">
-                                                <AvatarImage src={avatar.photo_url} />
+                                                <AvatarImage src={avatar.photo_url ?? undefined} />
                                                 <AvatarFallback className="bg-orange-500/10 text-orange-500 text-xs">
                                                     {avatar.name?.charAt(0) || "A"}
                                                 </AvatarFallback>
@@ -346,7 +351,7 @@ export function AvatarSelector({
                                             {selectedAvatar?.id === avatar.id && (
                                                 <Check className="w-4 h-4 text-primary flex-shrink-0" />
                                             )}
-                                            <AlertTriangle className="w-3 h-3 text-orange-500 flex-shrink-0" title="No linked session" />
+                                            <AlertTriangle className="w-3 h-3 text-orange-500 flex-shrink-0" />
                                         </button>
                                     ))}
                                 </div>
@@ -382,7 +387,7 @@ export function AvatarSelector({
                                             )}
                                         >
                                             <Avatar className="w-9 h-9 border border-border">
-                                                <AvatarImage src={avatar.photo_url} />
+                                                <AvatarImage src={avatar.photo_url ?? undefined} />
                                                 <AvatarFallback className="bg-muted text-xs">
                                                     {avatar.name?.charAt(0) || "A"}
                                                 </AvatarFallback>
@@ -401,7 +406,7 @@ export function AvatarSelector({
                                                 <Check className="w-4 h-4 text-primary flex-shrink-0" />
                                             )}
                                             {!isCurrentSession(avatar.icp_session_id!) && (
-                                                <AlertTriangle className="w-3 h-3 text-orange-500 flex-shrink-0" title="Different session" />
+                                                <AlertTriangle className="w-3 h-3 text-orange-500 flex-shrink-0" />
                                             )}
                                         </button>
                                     ))}
@@ -447,7 +452,7 @@ export function AvatarSelector({
                             </p>
                             <div className="flex items-center gap-3">
                                 <Avatar className="w-10 h-10">
-                                    <AvatarImage src={pendingAvatar?.photo_url} />
+                                    <AvatarImage src={pendingAvatar?.photo_url ?? undefined} />
                                     <AvatarFallback>
                                         {pendingAvatar?.name?.charAt(0) || "A"}
                                     </AvatarFallback>

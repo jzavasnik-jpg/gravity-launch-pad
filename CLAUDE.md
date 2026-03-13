@@ -54,14 +54,16 @@ Copy `.env.example` to `.env.local` and configure:
 - `B2_KEY_ID` - Backblaze B2 key ID
 - `B2_APPLICATION_KEY` - Backblaze B2 application key
 - `NEXT_PUBLIC_B2_BUCKET_NAME` - B2 bucket name
+- `GOOGLE_SERVICE_ACCOUNT` - Google service account JSON string (for Vertex AI)
 
-## Brand Guidelines
+## Brand Guidelines (Victor Monochrome Standard)
 
-- **Primary Color:** Cyan (#4FD1FF)
+- **Primary Color:** Monochrome white (opacity scale) — no cyan
 - **Font (Headings):** Inter (font-display)
 - **Font (Body):** Inter
 - **Font (Mono):** JetBrains Mono
-- **Style:** Dark mode first, floating card effects
+- **Style:** Dark mode first, Victor glass effects, monochrome palette
+- **Design System:** Victor tokens via CSS variables in globals.css
 
 ## Routes
 
@@ -79,5 +81,6 @@ Copy `.env.example` to `.env.local` and configure:
 ## Development Notes
 
 - All lib files use `'use client'` directive
-- TypeScript errors are ignored during build (fix incrementally)
+- TypeScript strict mode enforced — zero build errors required
 - CORS headers configured for CTO Command Center preview
+- `src/pages-ref/` contains legacy reference code (excluded from compilation)

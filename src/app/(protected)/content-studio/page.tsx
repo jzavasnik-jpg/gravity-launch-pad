@@ -92,13 +92,13 @@ export default function ContentStudio() {
     // Load Content Studio session on mount
     useEffect(() => {
         const loadSession = async () => {
-            if (!user?.uid) {
+            if (!user?.id) {
                 setLoadingSession(false);
                 return;
             }
 
-            console.log('[ContentStudio] Loading session for user:', user.uid);
-            const session = await getLatestContentStudioSession(user.uid);
+            console.log('[ContentStudio] Loading session for user:', user.id);
+            const session = await getLatestContentStudioSession(user.id);
 
             if (session) {
                 console.log('[ContentStudio] Session loaded:', session.id);
@@ -210,7 +210,7 @@ export default function ContentStudio() {
             } else {
                 // Create new session
                 console.log('[ContentStudio] Creating new session');
-                const newSessionId = await createContentStudioSession(user.uid);
+                const newSessionId = await createContentStudioSession(user.id);
                 if (newSessionId) {
                     setContentStudioSessionId(newSessionId);
                 }
@@ -220,7 +220,7 @@ export default function ContentStudio() {
         };
 
         loadSession();
-    }, [user?.uid, setContentStudioPainSynopsis, setContentStudioMarketIntel, setContentStudioStrategy, setContentStudioPlatformContent]);
+    }, [user?.id, setContentStudioPainSynopsis, setContentStudioMarketIntel, setContentStudioStrategy, setContentStudioPlatformContent]);
 
     // Auto-save when data changes
     useEffect(() => {
@@ -612,9 +612,9 @@ export default function ContentStudio() {
         // Store in sessionStorage for Media Lab to read
         sessionStorage.setItem('mediaLabProjectData', JSON.stringify(projectData));
 
-        // Save to Firestore (Media Lab collection)
-        if (user?.uid && variant.thumbnailUrl) {
-            toast.promise(saveMediaLabAsset(user.uid, {
+        // Save to Media Lab collection
+        if (user?.id && variant.thumbnailUrl) {
+            toast.promise(saveMediaLabAsset(user.id, {
                 type: 'thumbnail',
                 platform: platformId,
                 title: variant.hook || 'Viral Thumbnail',
@@ -1595,7 +1595,7 @@ export default function ContentStudio() {
                                     )}
 
                                     {/* LIBRARY STAGE */}
-                                    {currentStage === 'library' && (
+                                    {(currentStage as string) === 'library' && (
                                         <div className="space-y-6">
                                             <div className="flex items-center justify-between mb-6">
                                                 <div>
@@ -1636,7 +1636,7 @@ export default function ContentStudio() {
                                                                 </div>
                                                                 {marketIntel && (
                                                                     <p className="text-sm text-gray-400">
-                                                                        {marketIntel.trends.length} trends identified
+                                                                        {marketIntel.trends?.length || 0} trends identified
                                                                     </p>
                                                                 )}
                                                             </Card>
@@ -1648,7 +1648,7 @@ export default function ContentStudio() {
                                                                 </div>
                                                                 {strategy && (
                                                                     <p className="text-sm text-gray-400">
-                                                                        {strategy.recommended_triggers.length} content triggers
+                                                                        {strategy.recommended_triggers?.length || 0} content triggers
                                                                     </p>
                                                                 )}
                                                             </Card>

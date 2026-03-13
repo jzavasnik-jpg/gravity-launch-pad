@@ -1,24 +1,27 @@
 'use client';
 
-import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
+import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+// Debug: Log what we're working with
+if (typeof window !== 'undefined') {
+  console.log('[Supabase] Initializing client with URL:', supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'EMPTY');
+  console.log('[Supabase] Anon key:', supabaseAnonKey ? 'SET (' + supabaseAnonKey.length + ' chars)' : 'EMPTY');
+}
 
 // Only show warning if we're in the browser (not during build)
 if (typeof window !== 'undefined' && (!supabaseUrl || !supabaseAnonKey)) {
   console.error('Missing Supabase environment variables. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-// Create a placeholder client if env vars are missing (for build time)
+// Create browser client using @supabase/ssr for proper PKCE cookie storage
+// This is required for OAuth flows in Next.js App Router
 export const supabase: SupabaseClient = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-      },
-    })
+  ? createBrowserClient(supabaseUrl, supabaseAnonKey)
   : createClient('https://placeholder.supabase.co', 'placeholder-key', {
       auth: {
         autoRefreshToken: false,
@@ -64,7 +67,7 @@ export const signOut = async () => {
   return { error };
 };
 
-export const getCurrentUser = async (): Promise<{ user: User | null; error: any }> => {
+export const getCurrentUser = async (): Promise<{ user: SupabaseUser | null; error: any }> => {
   const { data: { user }, error } = await supabase.auth.getUser();
   return { user, error };
 };
@@ -105,7 +108,17 @@ export const resendVerificationEmail = async () => {
   return { data, error };
 };
 
-// Export types for use in components
-export type { User, Session } from '@supabase/supabase-js';
+// Extended User type with convenience properties used across the app
+// These map to user_metadata fields populated by OAuth providers (e.g., Google)
+export type User = SupabaseUser & {
+  displayName?: string;
+  photoURL?: string;
+  metadata?: {
+    creationTime?: string;
+    lastSignInTime?: string;
+  };
+};
+
+export type { Session };
 
 export default supabase;

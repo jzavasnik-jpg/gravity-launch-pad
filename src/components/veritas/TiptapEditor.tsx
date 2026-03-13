@@ -12,7 +12,7 @@ interface TiptapEditorProps {
 
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
 
-export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
+export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -38,7 +38,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     return (
         <div className="relative">
             {editor && (
-                <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
+                <BubbleMenu editor={editor}>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}

@@ -91,7 +91,7 @@ export function ThumbnailCard({
 
             console.log("Generating thumbnail with avatar:", avatarUrl);
             // Pass the current imageUrl as previousThumbnailUrl if we are making suggestions (iterating)
-            const previousThumbnailUrl = suggestions ? imageUrl : undefined;
+            const previousThumbnailUrl = suggestions ? (imageUrl ?? undefined) : undefined;
 
             const result = await generateViralThumbnail(
                 content,
@@ -101,7 +101,6 @@ export function ThumbnailCard({
                 suggestions,
                 combinedAssets,
                 avatarUrl,
-                hook,
                 hook,
                 previousThumbnailUrl, // Pass current image for iteration
                 generatedPrompt || undefined // Pass current prompt for editing

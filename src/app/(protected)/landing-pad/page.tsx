@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ColorPalettePicker } from "@/components/landing-pad/ColorPalettePicker";
-import { AvatarSelector } from "@/components/landing-pad/AvatarSelector";
+import { AvatarSelector, type AvatarData } from "@/components/landing-pad/AvatarSelector";
 import {
     getICPSession,
     getMarketingStatementsByAvatarId,
@@ -45,15 +45,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
-interface AvatarData {
-    id: string;
-    name: string;
-    photo_url?: string;
-    occupation?: string;
-    pain_points?: string[];
-    icp_session_id: string | null;
-}
 
 type ProductType = 'course' | 'saas' | 'digital_product' | 'service';
 

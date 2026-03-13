@@ -73,7 +73,7 @@ export function ProductAssetsPanel() {
     // Fetch assets from Supabase (metadata) - files are stored in Backblaze B2
     useEffect(() => {
         async function loadAssets() {
-            const userId = user?.uid || appState.userId;
+            const userId = user?.id || appState.userId;
             console.log('[ProductAssetsPanel] Loading assets for userId:', userId);
             if (!userId) {
                 console.log('[ProductAssetsPanel] No userId available');
@@ -139,7 +139,7 @@ export function ProductAssetsPanel() {
         }
 
         loadAssets();
-    }, [user?.uid, appState.userId]);
+    }, [user?.id, appState.userId]);
 
     // Filter assets based on active filter
     const filteredAssets = assets.filter(asset => {

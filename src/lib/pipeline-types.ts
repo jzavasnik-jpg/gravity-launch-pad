@@ -165,6 +165,7 @@ export interface ValidatePipelineResponse {
 export interface GeneratePipelineRequest {
   validated_idea_id: string;
   root_platform: 'twitter' | 'tiktok' | 'linkedin' | 'instagram' | 'youtube' | 'facebook';
+  platform?: string;
   selected_hook_id?: string;
   selected_framework?: string;
   selected_pattern?: string;

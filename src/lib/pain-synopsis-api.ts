@@ -14,6 +14,10 @@ export interface PainSynopsisResult {
         insight: string;
         transformation: string;
     };
+    avatar_synthesis?: {
+        description?: string;
+        name?: string;
+    };
 }
 
 /**

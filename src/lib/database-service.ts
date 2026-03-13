@@ -8,7 +8,8 @@ import { supabase } from './supabase';
 // B2 SIGNED URL UTILITIES
 // ============================================
 
-const BACKEND_URL = 'http://localhost:3001';
+// Use relative paths for Next.js API routes
+const BACKEND_URL = '';
 const B2_URL_PATTERN = /backblazeb2\.com/;
 
 // Cache for signed URLs to avoid repeated API calls
@@ -194,6 +195,8 @@ export interface MarketingStatement {
   usp_statement: string | null;
   transformation_statement: string | null;
   product_name: string | null;
+  promise?: string | null;
+  problem?: string | null;
   created_at: string | null;
 }
 
@@ -235,6 +238,7 @@ export interface UserRecord {
   id: string;  // Firebase Auth UID (TEXT in Supabase)
   email: string;
   name: string | null;
+  avatar_url: string | null;
   plan_type: 'free' | 'pro';
   linked_platforms: Record<string, any>;
   is_email_verified: boolean;
@@ -757,7 +761,7 @@ export async function deleteAvatar(avatarId: string): Promise<boolean> {
 
 export async function saveMarketingStatements(
   avatarId: string,
-  statements: Omit<MarketingStatement, 'id' | 'created_at' | 'avatar_id'>
+  statements: Partial<Omit<MarketingStatement, 'id' | 'created_at' | 'avatar_id'>>
 ): Promise<MarketingStatement[] | null> {
   try {
     const { data, error } = await supabase

@@ -15,6 +15,9 @@ interface VideoGenerationModalProps {
     onClose: () => void;
     initialPresentationId?: string;
     initialScript?: string;
+    script?: string;
+    presentationId?: string;
+    slides?: any[];
 }
 
 interface SlideRenderItem {
@@ -30,9 +33,12 @@ export function VideoGenerationModal({
     isOpen,
     onClose,
     initialPresentationId = "",
-    initialScript = ""
+    initialScript = "",
+    script,
+    presentationId: externalPresentationId,
+    slides: externalSlides
 }: VideoGenerationModalProps) {
-    const [presentationId, setPresentationId] = useState(initialPresentationId);
+    const [presentationId, setPresentationId] = useState(externalPresentationId || initialPresentationId);
     const [loading, setLoading] = useState(false);
     const [slides, setSlides] = useState<SlideRenderItem[]>([]);
     const [currentStep, setCurrentStep] = useState<'input' | 'configure' | 'rendering'>('input');

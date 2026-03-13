@@ -176,7 +176,7 @@ export function SceneCard({
       // Add as reference image - use the signed URL (already signed in ProductAssetsPanel)
       const newRef: SceneReferenceImage = {
         id: `ref_${Date.now()}`,
-        url: asset.url || asset.thumbnail_url,
+        url: asset.url || asset.thumbnail_url || '',
         name: getAssetDisplayName(asset),
         assetId: asset.id
       };

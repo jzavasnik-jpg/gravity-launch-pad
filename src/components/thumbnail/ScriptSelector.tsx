@@ -166,7 +166,7 @@ export function ScriptSelector({ onAnalyze, isAnalyzing, initialTopic, initialHo
 
             {/* Step 3: Action */}
             <Button
-                onClick={() => onAnalyze(scriptText)}
+                onClick={() => onAnalyze?.(scriptText)}
                 disabled={isAnalyzing || !String(scriptText).trim()}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium h-12"
             >

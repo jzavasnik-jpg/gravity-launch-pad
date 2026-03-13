@@ -9,9 +9,18 @@ export interface Asset {
     id: string;
     url: string;
     name: string;
+    title?: string;
     role?: 'hero' | 'before' | 'after' | 'social_proof' | 'product_element' | 'brand_element';
     characterTag?: 'guide' | 'mentee' | 'both' | 'product';
     tags?: string[];
+    thumbnail_url?: string;
+    asset_type?: string;
+    storage_provider?: string;
+    storage_path?: string;
+    storage_url?: string;
+    session_id?: string;
+    file?: File;
+    description?: string;
 }
 
 // Data from previous phases
@@ -143,30 +152,47 @@ export interface MarketingStatements {
     solution: string;
     usp: string;
     transformation: string;
+    promise?: string;
+    problem?: string;
+    productName?: string;
 }
 
 export interface TemperatureStrategy {
     temperature: Temperature;
-    strategyName: string;
-    strategyDescription: string;
-    communicationFocus: string;
-    hookDirection: string;
-    ctaStyle: string;
-    ctaExamples: string[];
-    psychologicalTriggers: string[];
-    generatedHooks: Hook[];
-    generatedScript: string | null;
-    isSelected: boolean;
+    strategyName?: string;
+    strategyDescription?: string;
+    communicationFocus?: string;
+    hookDirection?: string;
+    ctaStyle?: string;
+    ctaExamples?: string[];
+    psychologicalTriggers?: string[];
+    generatedHooks?: Hook[];
+    generatedScript?: string | null;
+    isSelected?: boolean;
+    hooks?: Array<{ text: string; angle: string; id?: string; sixSAlignment?: string; temperatureAlignment?: string }>;
+    toneGuidance?: string;
+    ctaOptions?: Array<string | { text: string; style?: string; reasoning?: string }>;
+    scriptOutline?: Record<string, string>;
+    avoidList?: string[];
 }
 
 // DEPRECATED: Use StoryStrategy instead
 export interface StrategyCandidate {
+    id?: string;
     name: string;
-    score: number;
-    status: 'recommended' | 'runner-up' | 'rejected';
-    whyConsidered: string;
+    score?: number;
+    status?: 'recommended' | 'runner-up' | 'rejected';
+    recommendation?: 'recommended' | 'runner_up' | 'alternative' | 'rejected';
+    primarySixS?: string;
+    secondarySixS?: string;
+    angle?: string;
+    hookPreview?: string;
+    whyConsidered?: string;
     whyNotWinner?: string;
-    sixSAlignment: {
+    whyItWorks?: string;
+    riskFactors?: string;
+    confidenceScore?: number;
+    sixSAlignment?: {
         category: SixS;
         aligned: boolean;
     }[];
@@ -342,7 +368,7 @@ export interface DirectorsCutState {
 }
 
 export type SceneLabel = 'HOOK' | 'PAIN' | 'SOLUTION' | 'CTA' | 'TRANSITION';
-export type SceneStatus = 'draft' | 'image_generating' | 'image_ready' | 'video_generating' | 'video_ready';
+export type SceneStatus = 'draft' | 'image_generating' | 'image_ready' | 'video_generating' | 'video_ready' | 'generating' | 'ready';
 
 export interface SceneReferenceImage {
     id: string;

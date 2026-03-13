@@ -13,7 +13,7 @@ interface Thumbnail {
     ctr: number;
     prompt?: string;
     platform?: string;
-    created_at: string;
+    created_at?: string;
 }
 
 interface ThumbnailGridProps {
@@ -58,7 +58,7 @@ export const ThumbnailGrid = ({ thumbnails }: ThumbnailGridProps) => {
                                     {thumbnail.platform || 'YouTube'}
                                 </Badge>
                                 <span className="text-[10px] text-gray-500">
-                                    {new Date(thumbnail.created_at).toLocaleDateString()}
+                                    {thumbnail.created_at ? new Date(thumbnail.created_at).toLocaleDateString() : ''}
                                 </span>
                             </div>
                         </div>
